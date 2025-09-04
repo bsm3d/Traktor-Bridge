@@ -4,7 +4,7 @@
 
 Convert your Native Instruments Traktor playlists to Pioneer Rekordbox format with full metadata preservation including cue points, loops, BPM, musical keys, and artwork.
 
-<img width="877" height="851" alt="traktor_brige_interface" src="https://github.com/user-attachments/assets/726e87a7-3e3b-4c46-84b0-1cbbb4ed7fad" />
+<img width="1310" height="573" alt="traktor_bridge_logo" src="https://github.com/user-attachments/assets/4d6fad1c-d12b-4fad-823b-7f9b23b99050" />
 
 
 ## If you have a brain you can use it :)
@@ -60,7 +60,7 @@ Convert your Native Instruments Traktor playlists to Pioneer Rekordbox format wi
 ## Author
 
 **Benoit (BSM) Saint-Moulin**  
-Website: [www.benoitsaintmoulin.com](http://www.benoitsaintmoulin.com)
+Website: [www.benoitsaintmoulin.com](http://www.benoitsaintmoulin.com/traktor_bridge)
 
 ## Overview
 
@@ -69,6 +69,9 @@ Traktor Bridge is a professional-grade application that converts Native Instrume
 **Design Philosophy**: The code is clean but not perfect; certain areas could be optimized. The monolithic code structure is intentional to facilitate usage by non-programmers who prefer a single-file solution.
 
 The application supports both database (.pdb) and XML export formats, making it compatible with Pioneer CDJ players and various DJ software that accept Rekordbox libraries.
+
+<img width="867" height="746" alt="traktor_brige_interface" src="https://github.com/user-attachments/assets/ce3ff950-ebd8-4253-8eaa-ef45e089640a" />
+
 
 ### Key Features
 
@@ -97,7 +100,8 @@ The application supports both database (.pdb) and XML export formats, making it 
 - Lightweight alternative to database format
 - Maintains playlist structure and track metadata
 
-<img width="1517" height="785" alt="traktor_bridge_view_detail" src="https://github.com/user-attachments/assets/fe23f343-3932-4b87-bfa5-1516f67d9bde" />
+<img width="1479" height="723" alt="traktor_bridge_view_detail" src="https://github.com/user-attachments/assets/712da936-e521-4022-8518-f0b6f13535e8" />
+
 
 ### Main Interface
 The intuitive interface guides you through the conversion process:
@@ -113,7 +117,8 @@ The intuitive interface guides you through the conversion process:
 - **Key Format Selection**: Toggle between Open Key and Classical notation
 - **Search Functionality**: Filter tracks by artist, title, or album
 
-<img width="976" height="663" alt="traktor_bridge_view_cue" src="https://github.com/user-attachments/assets/6cf0ba84-330c-4555-941e-31cb33baba4f" />
+<img width="968" height="620" alt="traktor_bridge_view_cue" src="https://github.com/user-attachments/assets/22036b7c-cb93-4a0f-a3fe-4c0f485a10ab" />
+
 
 ### Cue Point Timeline
 - **Visual Timeline**: Graphical representation of track structure with waveform simulation
@@ -432,8 +437,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Command-line interface
 
 ## Support
-Site : https://www.benoitsaintmoulin.com/traktor_bridge/
-
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/traktor-bridge/discussions)
 - **Web**: [Traktor Bridge web site](https://www.benoitsaintmoulin.com/traktor_bridge/)
 - **Email**: Contact via [www.benoitsaintmoulin.com](http://www.benoitsaintmoulin.com)
