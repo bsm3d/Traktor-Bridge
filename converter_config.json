@@ -1,0 +1,9 @@
+{
+    "nml_path": "",
+    "output_path": "",
+    "music_root_path": "",
+    "copy_music": true,
+    "verify_copy": false,
+    "key_format": "Open Key",
+    "export_format": "Database"
+}
