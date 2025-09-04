@@ -432,8 +432,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Command-line interface
 
 ## Support
+Site : https://www.benoitsaintmoulin.com/traktor_bridge/
 
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/traktor-bridge/discussions)
+- **Web**: [Traktor Bridge web site](https://www.benoitsaintmoulin.com/traktor_bridge/)
 - **Email**: Contact via [www.benoitsaintmoulin.com](http://www.benoitsaintmoulin.com)
 
 ## Dependencies and Credits
