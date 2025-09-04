@@ -23,6 +23,7 @@ import logging
 import uuid
 import io
 import time
+import re
 from pathlib import Path
 from datetime import datetime
 from contextlib import contextmanager
@@ -3034,11 +3035,27 @@ class ConverterGUI(QMainWindow):
         self._setup_ui()
         self._load_configuration()
         self._center_window()
+        self._set_default_nml_path()
         
         # Start progress update timer
         self.progress_timer = QTimer(self)
         self.progress_timer.timeout.connect(self._check_progress_queue)
         self.progress_timer.start(100)  # Check every 100ms
+
+    def _set_default_nml_path(self):
+        """Set default NML path if not already set."""
+        if not self.nml_path:
+            traktor_folder = self.find_latest_traktor_version()
+            if traktor_folder:
+                filename = traktor_folder + os.sep + "collection.nml"
+                self.nml_path = filename
+                self.nml_input.setText(filename)
+                self._load_playlists()
+                print(f"DEBUG: Setting default NML path to: {filename}")
+            else:
+                print("DEBUG: No Traktor folder found, cannot set default NML path.")
+        else:
+            print("DEBUG: NML path already set.")
     
     def _setup_ui(self):
         """Set up the main UI."""
@@ -3211,6 +3228,35 @@ class ConverterGUI(QMainWindow):
         
         parent_layout.addWidget(file_frame)
         parent_layout.addSpacing(10)
+
+    def find_latest_traktor_version(self):
+        """
+        Finds the latest version of Traktor installed on the system.
+
+        Returns:
+            str: The path to the latest version of Traktor.
+                None if Traktor folder is not found.
+        """
+        documents_path = os.path.join(os.path.expanduser("~"), "Documents", "Native Instruments")
+        try:
+            traktor_versions = [folder for folder in os.listdir(documents_path) if folder.startswith("Traktor")]
+        except FileNotFoundError:
+            # Documents/Native Instruments directory not found
+            print("Documents/Native Instruments directory not found")
+            return None
+
+        version_pattern = re.compile(r"Traktor (\d+\.\d+\.\d+)")
+
+        valid_versions = [version_pattern.match(version).group(1) for version in traktor_versions if version_pattern.match(version)]
+
+        if not valid_versions:
+            print("No valid Traktor versions found")
+            return None
+
+        latest_version = max(valid_versions, key=lambda v: tuple(map(int, v.split('.'))))
+        traktor_path = os.path.join(documents_path, f"Traktor {latest_version}")
+        print(f"Found latest Traktor version at: {traktor_path}")
+        return traktor_path
     
     def _create_playlist_section(self, parent_layout):
         """Create playlist selection tree view."""
