@@ -4,6 +4,9 @@
 
 Convert your Native Instruments Traktor playlists to Pioneer Rekordbox format with full metadata preservation including cue points, loops, BPM, musical keys, and artwork.
 
+<img width="877" height="851" alt="traktor_brige_interface" src="https://github.com/user-attachments/assets/726e87a7-3e3b-4c46-84b0-1cbbb4ed7fad" />
+
+
 ## If you have a brain you can use it :)
 
 **Install like 1,2,3:**
@@ -94,7 +97,7 @@ The application supports both database (.pdb) and XML export formats, making it 
 - Lightweight alternative to database format
 - Maintains playlist structure and track metadata
 
-## Screenshots
+<img width="1517" height="785" alt="traktor_bridge_view_detail" src="https://github.com/user-attachments/assets/fe23f343-3932-4b87-bfa5-1516f67d9bde" />
 
 ### Main Interface
 The intuitive interface guides you through the conversion process:
@@ -109,6 +112,8 @@ The intuitive interface guides you through the conversion process:
 - **Audio Playback**: Play/pause tracks with keyboard shortcuts (P key)
 - **Key Format Selection**: Toggle between Open Key and Classical notation
 - **Search Functionality**: Filter tracks by artist, title, or album
+
+<img width="976" height="663" alt="traktor_bridge_view_cue" src="https://github.com/user-attachments/assets/6cf0ba84-330c-4555-941e-31cb33baba4f" />
 
 ### Cue Point Timeline
 - **Visual Timeline**: Graphical representation of track structure with waveform simulation
