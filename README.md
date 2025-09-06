@@ -454,6 +454,35 @@ This application relies on excellent open-source libraries:
 ### Optional Dependencies
 - **[mutagen](https://pypi.org/project/mutagen/)** - Audio metadata handling library by Michael Urman, Lukáš Lalinský, and contributors
 
+
+### OPEN SOURCE PROJECT
+This software is free and open source, distributed under an open license for educational and practical purposes.
+
+**AUTHORIZED USAGE:**
+
+- Educational use within academic framework
+- Personal use and modification
+- Citation with appropriate author reference
+
+**RESTRICTIONS:**
+
+- Commercial use or code exploitation requires prior authorization from the author
+- Redistribution must maintain original copyright notice
+
+**Contact:** For authorization requests or information: contact via GitHub repository
+
+**Transparency Note:** This documentation is the result of human work, based on personal notes and experiences. It may contain errors or inaccuracies. Artificial intelligence has been used as a tool for proofreading and correction assistance.
+
+## Warranty Disclaimer
+
+**NO WARRANTY**: This software is provided "as is" without warranty of any kind, either express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non-infringement. In no event shall the authors be liable for any claim, damages or other liability arising from the use of this software.
+
+**USER RESPONSIBILITY**: Users are responsible for backing up their data before conversion and verifying compatibility with their specific hardware and software configurations.
+
+**LEGAL COMPLIANCE**: This software is provided for educational and interoperability purposes. Users must ensure compliance with all applicable laws and licenses in their jurisdiction.
+
+**Have fun, experiment, and enjoy bridging your creative workflows!**
+
 **Special thanks** to all the library maintainers and contributors who make tools like this possible.
 
 ---
