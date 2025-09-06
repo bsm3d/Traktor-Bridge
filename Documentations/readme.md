@@ -12,19 +12,7 @@ This technical documentation constitutes a comprehensive collection of specifica
 
 ## Included Documents
 
-### 1. **Traktor_bridge.py**
-Complete source code of the Traktor Bridge v1.1 application - Professional Traktor to Pioneer CDJ/XML converter.
-
-**Main content:**
-- Complete NML parser implementation
-- CDJ database exporter with SQLite structure
-- Rekordbox-compatible XML exporter
-- Advanced PySide6 graphical interface
-- Audio manager with playback and preview
-- Intelligent cache system for large volumes
-- Cue points and beat grids management
-
-### 2. **Recordbox_specifications.md**
+### 1. **Recordbox_specifications.md**
 Complete technical specification of the Rekordbox format for developers and researchers.
 
 **Main content:**
@@ -35,7 +23,7 @@ Complete technical specification of the Rekordbox format for developers and rese
 - CDJ/XDJ compatibility matrix
 - Reference implementations (crate-digger, pyrekordbox)
 
-### 3. **rekordbox_cdj_database_spec.md**
+### 2. **rekordbox_cdj_database_spec.md**
 Detailed technical specification of CDJ databases and communication protocols.
 
 **Main content:**
@@ -46,7 +34,7 @@ Detailed technical specification of CDJ databases and communication protocols.
 - Pioneer file system structure
 - Data types and encoding management
 
-### 4. **rekordbox_xml_specification.md**
+### 3. **rekordbox_xml_specification.md**
 Complete specification of the Rekordbox XML format for data exchange.
 
 **Main content:**
@@ -57,7 +45,7 @@ Complete specification of the Rekordbox XML format for data exchange.
 - Data types and encoding
 - Cross-platform validation and compatibility
 
-### 5. **traktor_bridge_upgrade.md**
+### 4. **traktor_bridge_upgrade.md**
 Upgrade guide to improve compatibility with modern Pioneer equipment.
 
 **Main content:**
@@ -68,7 +56,7 @@ Upgrade guide to improve compatibility with modern Pioneer equipment.
 - Enhanced user interface
 - Installation and dependencies guide
 
-### 6. **traktor_nml_research_guide.md**
+### 5. **traktor_nml_research_guide.md**
 Comprehensive research guide on Traktor Pro 3 & 4 NML format.
 
 **Main content:**
@@ -139,7 +127,6 @@ This documentation is provided for educational and research purposes. Implementa
 ## Recommended Use
 
 This documentation is primarily intended for:
-- **Developers** creating DJ interoperability tools
 - **Researchers** studying musical data formats
 - **Technical DJs** wanting to understand their tools
 - **Open source projects** for DJ software
