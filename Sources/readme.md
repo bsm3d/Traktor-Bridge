@@ -320,6 +320,6 @@ Include the following information:
 
 ---
 
-*Application Version: 1.1 (Optimized)*  
+*Application Version: 1.1*  
 *Documentation Updated: September 2025*  
 *Author: Benoit (BSM) Saint-Moulin*
