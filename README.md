@@ -10,6 +10,7 @@
 
 Convert Native Instruments Traktor playlists to Pioneer Rekordbox format with complete metadata preservation including cue points, loops, BPM, musical keys, and artwork.
 
+
 ![Traktor Bridge Interface](https://github.com/user-attachments/assets/ce3ff950-ebd8-4253-8eaa-ef45e089640a)
 
 ## Quick Start
