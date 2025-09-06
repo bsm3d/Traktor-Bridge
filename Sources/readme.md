@@ -74,16 +74,6 @@ python Traktor_bridge.py
 
 ### Core Components
 
-#### Configuration System
-```python
-class Config:
-    VERSION = "1.1"
-    APP_NAME = "Traktor Bridge"
-    WINDOW_SIZE = (700, 650)
-    MAX_CACHE_SIZE = 30000
-    SUPPORTED_FORMATS = {'.mp3', '.wav', '.flac', '.aiff', '.m4a', '.ogg'}
-```
-
 #### Data Models
 - **Track**: Complete track metadata container
 - **Node**: Hierarchical playlist/folder structure
@@ -94,39 +84,6 @@ class Config:
 - **Cache**: Intelligent file caching with memory management
 - **DBMgr**: Database operations with retry logic
 - **ArtworkMgr**: Secure artwork validation and storage
-
-### Export Modules
-
-#### NML Parser
-```python
-class NMLParser:
-    """Parses Traktor NML files with multiple encoding support"""
-    - Multi-encoding XML parsing (UTF-8, ISO-8859-1, CP1252, UTF-16)
-    - Smart file path reconstruction
-    - Cue point and beat grid extraction
-    - Artwork extraction with TinyTag/mutagen fallback
-```
-
-#### CDJ Database Exporter
-```python
-class CDJExporter:
-    """Creates Pioneer-compatible SQLite databases"""
-    - Standard Pioneer folder structure creation
-    - Complete database schema implementation
-    - Beat grid calculation and insertion
-    - Cue point format translation
-    - Artwork management with validation
-```
-
-#### XML Exporter
-```python
-class XMLExporter:
-    """Generates Rekordbox-compatible XML files"""
-    - Complete DJ_PLAYLISTS structure
-    - Cross-platform file path formatting
-    - Metadata preservation and translation
-    - Hierarchical playlist export
-```
 
 ## Platform-Specific Installation
 
@@ -144,20 +101,6 @@ python Traktor_bridge.py
 ```bash
 # Install via Homebrew (recommended)
 brew install python@3.10
-pip3 install PySide6 pygame tinytag mutagen Pillow
-
-# Run application
-python3 Traktor_bridge.py
-```
-
-### Linux (Ubuntu/Debian)
-```bash
-# Install system dependencies
-sudo apt update
-sudo apt install python3 python3-pip python3-venv
-sudo apt install libsdl2-dev libsdl2-mixer-2.0-0
-
-# Install Python packages
 pip3 install PySide6 pygame tinytag mutagen Pillow
 
 # Run application
@@ -231,9 +174,6 @@ Settings are automatically saved to `converter_config.json`:
 
 #### Audio Playback Problems
 ```bash
-# Linux: Install audio development libraries
-sudo apt install libasound2-dev libpulse-dev
-
 # Windows: Ensure audio drivers are installed
 # macOS: No additional setup required
 ```
