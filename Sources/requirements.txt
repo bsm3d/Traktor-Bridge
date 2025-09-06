@@ -1,0 +1,5 @@
+PySide6>=6.5.0
+pygame>=2.5.0
+tinytag>=1.10.0
+mutagen>=1.47.0
+Pillow>=10.0.0
