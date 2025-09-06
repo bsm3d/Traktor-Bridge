@@ -139,7 +139,9 @@ Corrections, improvements and feedback are welcome. This documentation will evol
 
 This technical documentation is made available for educational and research purposes. Commercial reuse requires explicit permission from the author.
 
+**Special thanks** to all the library maintainers and contributors who make tools like this possible.
+
 ---
 
-*Last updated: September 2025*  
-*Documentation version: 1.0*
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**
+
