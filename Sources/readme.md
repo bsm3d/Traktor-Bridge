@@ -313,20 +313,20 @@ Include the following information:
 ### OPEN SOURCE PROJECT
 This software is free and open source, distributed under an open license for educational and practical purposes.
 
-AUTHORIZED USAGE:
+**AUTHORIZED USAGE:**
 
 - Educational use within academic framework
 - Personal use and modification
 - Citation with appropriate author reference
 
-RESTRICTIONS:
+**RESTRICTIONS:**
 
 - Commercial use or code exploitation requires prior authorization from the author
 - Redistribution must maintain original copyright notice
 
-### Contact: For authorization requests or information: contact via GitHub repository
+**Contact:** For authorization requests or information: contact via GitHub repository
 
-### Transparency Note: This documentation is the result of human work, based on personal notes and experiences. It may contain errors or inaccuracies. Artificial intelligence has been used as a tool for proofreading and correction assistance.
+**Transparency Note:** This documentation is the result of human work, based on personal notes and experiences. It may contain errors or inaccuracies. Artificial intelligence has been used as a tool for proofreading and correction assistance.
 
 ## Warranty Disclaimer
 
@@ -336,7 +336,7 @@ RESTRICTIONS:
 
 **LEGAL COMPLIANCE**: This software is provided for educational and interoperability purposes. Users must ensure compliance with all applicable laws and licenses in their jurisdiction.
 
-Have fun, experiment, and enjoy bridging your creative workflows!
+**Have fun, experiment, and enjoy bridging your creative workflows!**
 
 ---
 
