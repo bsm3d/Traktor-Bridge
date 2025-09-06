@@ -73,11 +73,10 @@ python Traktor_bridge_1.1.py --help
 **Audio**: MP3, WAV, FLAC, AIFF, M4A, OGG  
 **Artwork**: JPEG, PNG, GIF, WebP
 
-## Cue Point Translation
-
 <img width="968" height="620" alt="traktor_bridge_view_cue" src="https://github.com/user-attachments/assets/4f953826-745b-41c3-8733-a27f10784140" />
 
 
+## Cue Point Translation
 
 | Traktor | Rekordbox | Notes |
 |---------|-----------|-------|
