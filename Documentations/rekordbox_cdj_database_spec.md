@@ -6,7 +6,6 @@
 **Benoit Saint-Moulin**  
 - **Website**: [www.benoitsaintmoulin.com](https://www.benoitsaintmoulin.com)  
 - **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)  
-- **Profile**: Belgian DJ/Producer, Founder of Green Mayday
 
 ### Primary Research Sources
 
