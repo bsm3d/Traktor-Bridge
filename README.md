@@ -5,6 +5,9 @@
 
 **Professional Traktor to Pioneer CDJ/XML Converter**
 
+<img width="1310" height="573" alt="traktor_bridge_logo" src="https://github.com/user-attachments/assets/358bd3e6-929d-44c0-b7c8-ccbbc2e4f602" />
+
+
 Convert Native Instruments Traktor playlists to Pioneer Rekordbox format with complete metadata preservation including cue points, loops, BPM, musical keys, and artwork.
 
 ![Traktor Bridge Interface](https://github.com/user-attachments/assets/ce3ff950-ebd8-4253-8eaa-ef45e089640a)
@@ -74,6 +77,9 @@ python Traktor_bridge_1.1.py --help
 **Artwork**: JPEG, PNG, GIF, WebP
 
 ## Cue Point Translation
+
+<img width="968" height="620" alt="traktor_bridge_view_cue" src="https://github.com/user-attachments/assets/4f953826-745b-41c3-8733-a27f10784140" />
+
 
 | Traktor | Rekordbox | Notes |
 |---------|-----------|-------|
