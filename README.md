@@ -1,5 +1,8 @@
 # Traktor Bridge
 
+**Author**: Benoit (BSM) Saint-Moulin  
+**Website**: [benoitsaintmoulin.com](http://www.benoitsaintmoulin.com)
+
 **Professional Traktor to Pioneer CDJ/XML Converter**
 
 Convert Native Instruments Traktor playlists to Pioneer Rekordbox format with complete metadata preservation including cue points, loops, BPM, musical keys, and artwork.
@@ -106,19 +109,17 @@ python Traktor_bridge_1.1.py --help
 **Authorized**: Educational use, personal modification, citation with attribution  
 **Restricted**: Commercial use requires author authorization
 
-## Disclaimers
+**Contact**: GitHub repository for authorization requests
 
-**Trademarks**: Pioneer DJ, Rekordbox, CDJ, XDJ are trademarks of Pioneer DJ Corporation. Native Instruments, Traktor are trademarks of Native Instruments GmbH.
+## Disclaimers & Warranty
 
-**Warranty**: Software provided "as is" without warranty. Users responsible for data backup and compatibility verification.
+**Trademarks**: Pioneer DJ, Rekordbox, CDJ, XDJ are trademarks of Pioneer DJ Corporation. Native Instruments, Traktor are trademarks of Native Instruments GmbH. All trademarks are property of their respective owners.
 
-**Affiliation**: Independent tool, not affiliated with Pioneer DJ or Native Instruments.
+**No Warranty**: Software provided "AS IS" without warranty of any kind, express or implied, including warranties of merchantability, fitness for purpose, and non-infringement. Author not liable for any damages arising from software use.
 
-## Author
+**No Affiliation**: Independent tool, not affiliated with, endorsed by, or sponsored by Pioneer DJ Corporation or Native Instruments GmbH. Provided for interoperability and educational purposes only.
 
-**Benoit (BSM) Saint-Moulin**  
-Website: [benoitsaintmoulin.com](http://www.benoitsaintmoulin.com)  
-Contact: GitHub repository
+**User Responsibility**: Users responsible for data backup before conversion and verifying hardware/software compatibility.
 
 ---
 
