@@ -338,8 +338,8 @@ This software is free and open source, distributed under an open license for edu
 
 **Have fun, experiment, and enjoy bridging your creative workflows!**
 
+**Special thanks** to all the library maintainers and contributors who make tools like this possible.
+
 ---
 
-*Application Version: 1.1*  
-*Documentation Updated: September 2025*  
-*Author: Benoit (BSM) Saint-Moulin*
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**
