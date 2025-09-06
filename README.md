@@ -121,6 +121,8 @@ python Traktor_bridge_1.1.py --help
 
 **User Responsibility**: Users responsible for data backup before conversion and verifying hardware/software compatibility.
 
+**Special thanks** to all the library maintainers and contributors who make tools like this possible.
+
 ---
 
-*Bridge your creative workflows - 2 years of development to solve real DJ ecosystem challenges*
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**
