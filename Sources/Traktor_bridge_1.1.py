@@ -3,7 +3,7 @@
 TRAKTOR BRIDGE - Professional Traktor to Pioneer CDJ/XML Converter
 ================================================================================
 
-Version: 1.1
+Version: 1.1.2
 Author: Benoit (BSM) Saint-Moulin
 Website: www.benoitsaintmoulin.com
 GitHub: https://github.com/bsm3d/Traktor-Bridge
@@ -3235,4 +3235,5 @@ def main():
         return 1
 
 if __name__ == "__main__":
+
     sys.exit(main())
