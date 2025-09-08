@@ -1,54 +1,54 @@
-"""
-================================================================================
-TRAKTOR BRIDGE - Professional Traktor to Pioneer CDJ/XML Converter
-================================================================================
+#!/usr/bin/env python3
 
-Version: 1.1.2
-Author: Benoit (BSM) Saint-Moulin
-Website: www.benoitsaintmoulin.com
-GitHub: https://github.com/bsm3d/Traktor-Bridge
+# ================================================================================
+# TRAKTOR BRIDGE - Professional Traktor to Pioneer CDJ/XML Converter
+# ================================================================================
 
-================================================================================
-LICENSE & USAGE
-================================================================================
+# Version: 1.1.2
+# Author: Benoit (BSM) Saint-Moulin
+# Website: www.benoitsaintmoulin.com
+# GitHub: https://github.com/bsm3d/Traktor-Bridge
 
-**Open Source Project** - Free for educational and personal use
+# ================================================================================
+# LICENSE & USAGE
+# ================================================================================
 
-**Authorized**: 
-- Educational use within academic framework
-- Personal modification and use
-- Citation with appropriate author attribution
+# **Open Source Project** - Free for educational and personal use
 
-**Restricted**: 
-- Commercial use requires prior authorization from the author
-- Redistribution must maintain original copyright notice
+# **Authorized**: 
+# - Educational use within academic framework
+# - Personal modification and use
+# - Citation with appropriate author attribution
 
-**Contact**: GitHub repository for authorization requests
+# **Restricted**: 
+# - Commercial use requires prior authorization from the author
+# - Redistribution must maintain original copyright notice
 
-================================================================================
-DISCLAIMERS & WARRANTY
-================================================================================
+# **Contact**: GitHub repository for authorization requests
 
-**Trademarks**: Pioneer DJ, Rekordbox, CDJ, XDJ are trademarks of Pioneer DJ 
-Corporation. Native Instruments, Traktor are trademarks of Native Instruments 
-GmbH. All trademarks are property of their respective owners.
+# ================================================================================
+# DISCLAIMERS & WARRANTY
+# ================================================================================
 
-**No Warranty**: Software provided "AS IS" without warranty of any kind, express 
-or implied, including warranties of merchantability, fitness for purpose, and 
-non-infringement. Author not liable for any damages arising from software use.
+# **Trademarks**: Pioneer DJ, Rekordbox, CDJ, XDJ are trademarks of Pioneer DJ 
+# Corporation. Native Instruments, Traktor are trademarks of Native Instruments 
+# GmbH. All trademarks are property of their respective owners.
 
-**No Affiliation**: Independent tool, not affiliated with, endorsed by, or 
-sponsored by Pioneer DJ Corporation or Native Instruments GmbH. Provided for 
-interoperability and educational purposes only.
+# **No Warranty**: Software provided "AS IS" without warranty of any kind, express 
+# or implied, including warranties of merchantability, fitness for purpose, and 
+# non-infringement. Author not liable for any damages arising from software use.
 
-**User Responsibility**: Users responsible for data backup before conversion and 
-verifying hardware/software compatibility.
+# **No Affiliation**: Independent tool, not affiliated with, endorsed by, or 
+# sponsored by Pioneer DJ Corporation or Native Instruments GmbH. Provided for 
+# interoperability and educational purposes only.
 
-**Special thanks** to all the library maintainers and contributors who make 
-tools like this possible.
+# **User Responsibility**: Users responsible for data backup before conversion and 
+# verifying hardware/software compatibility.
 
-================================================================================
-"""
+# **Special thanks** to all the library maintainers and contributors who make 
+# tools like this possible.
+
+# ================================================================================
 
 import xml.etree.ElementTree as ET
 import os, sqlite3, shutil, urllib.parse, traceback, sys, threading, queue, json
@@ -3237,3 +3237,4 @@ def main():
 if __name__ == "__main__":
 
     sys.exit(main())
+
