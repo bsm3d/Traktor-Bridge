@@ -1,5 +1,7 @@
 # Traktor Bridge 2.0
 
+**Website & User Guide**: www.traktorbridge.com
+
 ## Introduction
 
 **Professional Traktor to Pioneer CDJ Hardware Converter**
