@@ -1,4 +1,4 @@
-# Traktor Bridge 2.1
+# Traktor Bridge 2.0
 
 **Website & User Guide**: www.traktorbridge.com
 
