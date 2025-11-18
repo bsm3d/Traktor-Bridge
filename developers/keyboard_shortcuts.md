@@ -1,6 +1,23 @@
-# Keyboard Shortcuts
+# Traktor Bridge 2.0 - Keyboard Shortcuts
 
-This document lists all keyboard shortcuts available in Traktor Bridge 2.0.
+## Introduction
+
+This document provides a comprehensive reference of all keyboard shortcuts available in Traktor Bridge 2.0, helping you navigate the application efficiently and boost your productivity.
+
+## Sources and Attribution
+
+### Author
+**Benoit (BSM) Saint-Moulin**
+* **Website**: www.benoitsaintmoulin.com
+* **Developer Portfolio**: www.bsm3d.com
+* **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)
+* **Instagram**: [@benoitsaintmoulin](https://www.instagram.com/benoitsaintmoulin)
+
+## Table of Contents
+
+1. [Main Window](#main-window)
+2. [Details Window](#details-window)
+3. [Timeline Dialog](#timeline-dialog)
 
 ## Main Window
 
@@ -28,3 +45,9 @@ This document lists all keyboard shortcuts available in Traktor Bridge 2.0.
 |----------|--------|
 | C | Copy Cue Points to Clipboard |
 | Esc | Close Dialog |
+
+---
+
+Documentation version 2.0 - November 2025
+
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**

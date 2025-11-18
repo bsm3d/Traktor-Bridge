@@ -1,10 +1,17 @@
 # Traktor Bridge 2.0 - Export Format Specifications
 
-**Author**: Benoit (BSM) Saint-Moulin
-**Version**: 2.0
-**Last Updated**: November 2025
+## Introduction
 
----
+This document provides comprehensive technical specifications for all export formats supported by Traktor Bridge 2.0, including CDJ/USB, Rekordbox databases, XML, and M3U formats. Understanding these formats is essential for developers implementing custom exporters or troubleshooting compatibility issues.
+
+## Sources and Attribution
+
+### Author
+**Benoit (BSM) Saint-Moulin**
+* **Website**: www.benoitsaintmoulin.com
+* **Developer Portfolio**: www.bsm3d.com
+* **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)
+* **Instagram**: [@benoitsaintmoulin](https://www.instagram.com/benoitsaintmoulin)
 
 ## Table of Contents
 
@@ -789,8 +796,6 @@ Playlists/
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2025
-**Author**: Benoit (BSM) Saint-Moulin
+Documentation version 2.0 - November 2025
 
-For technical support or format-specific questions, please consult the [API Reference](API.md) or open an issue on GitHub.
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**

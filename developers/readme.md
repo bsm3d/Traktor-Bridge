@@ -1,4 +1,4 @@
-# Traktor Bridge 2.0 - Documentation
+# Traktor Bridge 2.0 - Developers Documentation
 
 **Professional Traktor to Pioneer CDJ Hardware & Rekordbox Converter**
 
@@ -10,18 +10,35 @@ Convert your Native Instruments Traktor playlists to Pioneer CDJ hardware and Re
 
 This directory contains comprehensive documentation for Traktor Bridge 2.0:
 
-- **[README.md](readme.md)** - This file (user documentation)
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technical architecture and design patterns
-- **[API.md](API.md)** - Complete API reference for developers
-- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Development setup and contribution guide
-- **[FORMATS.md](FORMATS.md)** - Export format specifications and technical details
+- **[readme.md](readme.md)** - This file (user documentation)
+- **[architecture.md](architecture.md)** - Technical architecture and design patterns
+- **[api.md](api.md)** - Complete API reference for developers
+- **[developer_guide.md](developer_guide.md)** - Development setup and contribution guide
+- **[formats.md](formats.md)** - Export format specifications and technical details
 - **[keyboard_shortcuts.md](keyboard_shortcuts.md)** - Keyboard shortcuts reference
+- **[rekordbox_specifications.md](rekordbox_specifications.md)** - Rekordbox CDJ & database format specification
+- **[rekordbox_xml_specification.md](rekordbox_xml_specification.md)** - Rekordbox XML format specification
+- **[traktor_nml_research_guide.md](traktor_nml_research_guide.md)** - Traktor NML format research guide
+- **[traktor_bridge_upgrade.md](traktor_bridge_upgrade.md)** - NML to CDJ/XDJ compatibility upgrade guide
 
 ---
 
+## Introduction
+
+Traktor Bridge 2.0 is a professional-grade application that converts Native Instruments Traktor collections to Pioneer Rekordbox formats with complete metadata preservation. This document serves as the main entry point for developers working with Traktor Bridge.
+
+## Sources and Attribution
+
+### Author
+**Benoit (BSM) Saint-Moulin**
+* **Website**: www.benoitsaintmoulin.com
+* **Developer Portfolio**: www.bsm3d.com
+* **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)
+* **Instagram**: [@benoitsaintmoulin](https://www.instagram.com/benoitsaintmoulin)
+
 ## Quick Start
 
-**Requirements**: Python 3.8+
+**Requirements**: Python 3.13+
 
 ```bash
 # Clone repository
@@ -39,7 +56,6 @@ python main.py
 
 ## Table of Contents
 
-- [Author](#author)
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Export Formats](#export-formats)
@@ -143,7 +159,7 @@ The intuitive interface guides you through the conversion process:
 
 ### Prerequisites
 
-**Python 3.8 or higher** is required.
+**Python 3.13 or higher** is required.
 
 ### Required Dependencies
 
@@ -479,27 +495,15 @@ For developers and advanced users, comprehensive technical documentation is avai
 ### For Users
 - **[User Guide](readme.md)** - Complete user documentation (this file)
 - **[Keyboard Shortcuts](keyboard_shortcuts.md)** - All keyboard shortcuts
-- **[Format Specifications](FORMATS.md)** - Export format details
+- **[Format Specifications](formats.md)** - Export format details
 
 ### For Developers
-- **[Architecture Guide](ARCHITECTURE.md)** - System architecture and design patterns
-- **[API Reference](API.md)** - Complete API documentation
-- **[Developer Guide](DEVELOPER_GUIDE.md)** - Setup, testing, and contribution guide
-
-### Quick Links
-
-**Common Developer Tasks:**
-- [Creating a New Exporter](DEVELOPER_GUIDE.md#creating-new-exporters)
-- [Adding New Features](DEVELOPER_GUIDE.md#adding-new-features)
-- [Testing Guide](DEVELOPER_GUIDE.md#testing)
-- [API Examples](API.md#examples)
-
-**Technical Specifications:**
-- [CDJ/USB Format Details](FORMATS.md#cdjusb-format)
-- [PDB Binary Format](FORMATS.md#pdb-database-format)
-- [ANLZ Waveform Files](FORMATS.md#anlz-waveform-files)
-- [Rekordbox Database Schema](FORMATS.md#database-schema)
+- **[Architecture Guide](architecture.md)** - System architecture and design patterns
+- **[API Reference](api.md)** - Complete API documentation
+- **[Developer Guide](developer_guide.md)** - Setup, testing, and contribution guide
 
 ---
+
+Documentation version 2.0 - November 2025
 
 **Made with ❤️ by Benoit (BSM) Saint-Moulin**

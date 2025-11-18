@@ -1,11 +1,17 @@
-# Research Guide: Native Instruments Traktor 3 & 4 NML File Format
+# Traktor Bridge 2.0 - Native Instruments Traktor 3 & 4 NML File Format
+
+## Introduction
+
+The NML (Native Markup Language) format constitutes the core data system for Native Instruments Traktor DJ software. This proprietary XML format stores comprehensive DJ library information including metadata, playlists, cue points, beat grids, and audio analysis data. This specification covers robust parsing requirements for production systems targeting Traktor Pro 3.x & 4.x (NML VERSION 19-20).
 
 ## Sources and Attribution
 
 ### Author
-**Benoit Saint-Moulin**  
-- **Website**: [www.benoitsaintmoulin.com](https://www.benoitsaintmoulin.com)  
-- **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)  
+**Benoit (BSM) Saint-Moulin**
+* **Website**: www.benoitsaintmoulin.com
+* **Developer Portfolio**: www.bsm3d.com
+* **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)
+* **Instagram**: [@benoitsaintmoulin](https://www.instagram.com/benoitsaintmoulin)  
 
 ### Primary Research Sources
 
@@ -897,4 +903,10 @@ The Python ecosystem, particularly traktor-nml-utils, offers automation and anal
 For developers and technical DJs, the NML format provides a solid foundation for creating customized solutions for analysis, management, and conversion of professional music libraries. The combination of its open structure and mature community tools makes it an optimal choice for projects requiring programmatic manipulation of DJ data.
 
 This specification enables robust NML parsing for production DJ software with comprehensive error handling and version compatibility. The documented structures and validation methods ensure reliable parsing of Traktor collections across different versions and corruption scenarios.
+
+---
+
+Documentation version 2.0 - November 2025
+
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**
 

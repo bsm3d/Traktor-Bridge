@@ -1,10 +1,17 @@
 # Traktor Bridge 2.0 - Technical Architecture
 
-**Author**: Benoit (BSM) Saint-Moulin
-**Version**: 2.0
-**Last Updated**: November 2024
+## Introduction
 
----
+This document provides a comprehensive technical overview of Traktor Bridge 2.0's architecture, design patterns, and system components. It covers the modular structure, data flow, threading model, and performance optimizations that enable professional-grade DJ library conversion.
+
+## Sources and Attribution
+
+### Author
+**Benoit (BSM) Saint-Moulin**
+* **Website**: www.benoitsaintmoulin.com
+* **Developer Portfolio**: www.bsm3d.com
+* **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)
+* **Instagram**: [@benoitsaintmoulin](https://www.instagram.com/benoitsaintmoulin)
 
 ## Table of Contents
 
@@ -40,58 +47,58 @@ Traktor Bridge 2.0 is a professional-grade DJ software converter built with a mo
 ### High-Level Architecture Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        User Interface Layer                  │
+┌───────────────────────────────────────────────────────────┐
+│                        User Interface Layer               │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │ Main GUI │  │ Details  │  │ Options  │  │ Timeline │   │
 │  │ (main.py)│  │   (ui/)  │  │   (ui/)  │  │   (ui/)  │   │
 │  └─────┬────┘  └─────┬────┘  └─────┬────┘  └─────┬────┘   │
-└────────┼─────────────┼─────────────┼─────────────┼─────────┘
+└────────┼─────────────┼─────────────┼─────────────┼────────┘
          │             │             │             │
          v             v             v             v
-┌─────────────────────────────────────────────────────────────┐
-│                    Business Logic Layer                      │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │ Conversion  │  │   Playlist   │  │  Key Trans-  │       │
-│  │   Thread    │  │   Manager    │  │    lator     │       │
-│  │ (threads/)  │  │   (utils/)   │  │   (utils/)   │       │
-│  └──────┬──────┘  └──────────────┘  └──────────────┘       │
-└─────────┼────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                    Business Logic Layer                   │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │ Conversion  │  │   Playlist   │  │  Key Trans-  │      │
+│  │   Thread    │  │   Manager    │  │    lator     │      │
+│  │ (threads/)  │  │   (utils/)   │  │   (utils/)   │      │
+│  └──────┬──────┘  └──────────────┘  └──────────────┘      │
+└─────────┼─────────────────────────────────────────────────┘
           │
           v
-┌─────────────────────────────────────────────────────────────┐
-│                      Parser Layer                            │
-│  ┌──────────────────────────────────────────────────┐       │
-│  │         TraktorNMLParser (parser/)                │       │
-│  │  • Encoding detection                             │       │
-│  │  • Multi-version NML support (v19, v20)          │       │
-│  │  • File cache for relocated tracks                │       │
-│  └───────────────────┬──────────────────────────────┘       │
-└────────────────────┼─────────────────────────────────────────┘
-                     │
-                     v
-┌─────────────────────────────────────────────────────────────┐
-│                     Export Layer                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ CDJ Export   │  │ XML Export   │  │ M3U Export   │      │
-│  │ ┌──────────┐ │  │ (bsm_xml_   │  │ (bsm_m3u_    │      │
-│  │ │PDB Export│ │  │  exporter)   │  │  exporter)   │      │
-│  │ │ANLZ Gen  │ │  └──────────────┘  └──────────────┘      │
-│  │ │Audio Copy│ │  ┌──────────────┐                        │
-│  │ └──────────┘ │  │ RB Database  │                        │
-│  │(cdj_*)       │  │ (bsm_rb_     │                        │
-│  └──────────────┘  │  exporter)   │                        │
-│                    └──────────────┘                        │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                      Parser Layer                         │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │         TraktorNMLParser (parser/)               │     │
+│  │  • Encoding detection                            │     │
+│  │  • Multi-version NML support (v19, v20)          │     │
+│  │  • File cache for relocated tracks               │     │
+│  └───────────────────┬──────────────────────────────┘     │
+└──────────────────────┼────────────────────────────────────┘
+                       │
+                       v
+┌───────────────────────────────────────────────────────────┐
+│                     Export Layer                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │ CDJ Export   │  │ XML Export   │  │ M3U Export   │     │
+│  │ ┌──────────┐ │  │ (bsm_xml_    │  │ (bsm_m3u_    │     │
+│  │ │PDB Export│ │  │  exporter)   │  │  exporter)   │     │
+│  │ │ANLZ Gen  │ │  └──────────────┘  └──────────────┘     │
+│  │ │Audio Copy│ │  ┌──────────────┐                       │
+│  │ └──────────┘ │  │ RB Database  │                       │
+│  │(cdj_*)       │  │ (bsm_rb_     │                       │
+│  └──────────────┘  │  exporter)   │                       │
+│                    └──────────────┘                       │
+└───────────────────────────────────────────────────────────┘
           │             │             │             │
           v             v             v             v
-┌─────────────────────────────────────────────────────────────┐
-│                      Storage Layer                           │
+┌───────────────────────────────────────────────────────────┐
+│                      Storage Layer                        │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │ Binary   │  │   XML    │  │  SQLite  │  │   M3U    │   │
 │  │   PDB    │  │   File   │  │   DB     │  │  Files   │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
-└─────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -128,13 +135,7 @@ Traktor-Bridge-2/
 │   ├── timeline.py          # Cue point timeline
 │   └── usage.py             # Usage guide
 ├── threads/                 # Background processing
-│   └── conversion.py        # Conversion worker thread
-└── tools/                   # Developer tools
-    ├── pdb_reader.py        # PDB database inspector
-    ├── pdb_hex_analyzer.py  # Hex analyzer for debugging
-    ├── cdj_usb_validator.py # CDJ USB structure validator
-    ├── nml_inspector.py     # NML file inspector
-    └── RB_inspector.py      # Rekordbox database inspector
+    └── conversion.py        # Conversion worker thread
 ```
 
 ---
@@ -886,6 +887,6 @@ QMessageBox.critical(
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Author**: Benoit (BSM) Saint-Moulin
+Documentation version 2.0 - November 2025
+
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**

@@ -1,10 +1,17 @@
 # Traktor Bridge 2.0 - Developer Guide
 
-**Author**: Benoit (BSM) Saint-Moulin
-**Version**: 2.0
-**Last Updated**: November 2024
+## Introduction
 
----
+This comprehensive developer guide provides everything you need to set up your development environment, contribute to Traktor Bridge 2.0, and extend its functionality. Whether you're adding new export formats, implementing features, or contributing bug fixes, this guide will walk you through the complete development workflow.
+
+## Sources and Attribution
+
+### Author
+**Benoit (BSM) Saint-Moulin**
+* **Website**: www.benoitsaintmoulin.com
+* **Developer Portfolio**: www.bsm3d.com
+* **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)
+* **Instagram**: [@benoitsaintmoulin](https://www.instagram.com/benoitsaintmoulin)
 
 ## Table of Contents
 
@@ -25,7 +32,7 @@
 
 ### Prerequisites
 
-- **Python**: 3.8 or higher
+- **Python**: 3.13 or higher
 - **Git**: For version control
 - **IDE**: VSCode, PyCharm, or similar with Python support
 
@@ -139,12 +146,8 @@ Traktor-Bridge-2/
 │   ├── log.py                 # Log viewer
 │   ├── timeline.py            # Timeline viewer
 │   └── usage.py               # Usage guide
-├── threads/                   # Background processing
-│   └── conversion.py          # Conversion thread
-└── tools/                     # Developer tools
-    ├── pdb_reader.py          # PDB inspector
-    ├── cdj_usb_validator.py   # USB validator
-    └── nml_inspector.py       # NML inspector
+└── threads/                   # Background processing
+    └── conversion.py          # Conversion thread
 ```
 
 ### Key Files
@@ -658,59 +661,6 @@ self.logger.debug(f"Processing track: {track.title}")
 self.logger.debug(f"Export settings: {settings}")
 ```
 
-### Developer Tools
-
-#### PDB Reader
-
-Inspect binary PDB files:
-
-```bash
-python tools/pdb_reader.py /path/to/export.pdb
-```
-
-**Output:**
-```
-Page 0: TRACKS (48 rows)
-Page 1: ARTISTS (120 rows)
-Page 2: ALBUMS (85 rows)
-...
-```
-
-#### CDJ USB Validator
-
-Validate CDJ USB structure:
-
-```bash
-python tools/cdj_usb_validator.py /media/usb
-```
-
-**Output:**
-```
-✓ PIONEER directory exists
-✓ USBANLZ directory exists
-✓ export.pdb found
-✓ DeviceSQL.edb found
-✓ 150 ANLZ files found
-✓ USB structure valid
-```
-
-#### NML Inspector
-
-Inspect NML files:
-
-```bash
-python tools/nml_inspector.py /path/to/collection.nml
-```
-
-**Output:**
-```
-NML Version: 19
-Encoding: UTF-8
-Total Entries: 5234
-Total Playlists: 47
-Total Folders: 12
-```
-
 ### Debugging UI Issues
 
 **Enable Qt debugging:**
@@ -1064,8 +1014,6 @@ def register_plugin(plugin_class):
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 2024
-**Author**: Benoit (BSM) Saint-Moulin
+Documentation version 2.0 - November 2025
 
-For questions or support, please open an issue on GitHub.
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**

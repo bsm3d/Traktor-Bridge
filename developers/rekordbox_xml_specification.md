@@ -1,11 +1,17 @@
-# Rekordbox XML Format Technical Specification
+# Traktor Bridge 2.0 - Rekordbox XML Format Technical Specification
+
+## Introduction
+
+This document provides a comprehensive technical specification for the Rekordbox XML format, enabling developers to parse and generate Rekordbox-compatible XML files. The Rekordbox XML format is Pioneer DJ's text-based interchange format for DJ library data, supporting track metadata, playlists, and performance information.
 
 ## Sources and Attribution
 
 ### Author
-**Benoit Saint-Moulin**  
-- **Website**: [www.benoitsaintmoulin.com](https://www.benoitsaintmoulin.com)  
-- **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)  
+**Benoit (BSM) Saint-Moulin**
+* **Website**: www.benoitsaintmoulin.com
+* **Developer Portfolio**: www.bsm3d.com
+* **GitHub**: [github.com/bsm3d](https://github.com/bsm3d)
+* **Instagram**: [@benoitsaintmoulin](https://www.instagram.com/benoitsaintmoulin)  
 
 ### Primary Research Sources
 
@@ -530,3 +536,9 @@ def safe_get_track_attribute(track_elem, attr_name, default=None):
 The Rekordbox XML format provides a robust, portable representation of DJ library data. While lacking official documentation, this reverse-engineered specification enables reliable parsing and generation of Rekordbox-compatible XML files. The format's simplicity and text-based nature make it ideal for backup, migration, and integration scenarios.
 
 Understanding the hierarchical structure, attribute semantics, and encoding requirements allows developers to build compatible tools that can seamlessly exchange data with Rekordbox and other DJ software platforms that support this de facto standard format.
+
+---
+
+Documentation version 2.0 - November 2025
+
+**Made with ❤️ by Benoit (BSM) Saint-Moulin**
