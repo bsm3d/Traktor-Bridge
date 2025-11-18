@@ -4,6 +4,8 @@
 
 Convert your Native Instruments Traktor playlists to Pioneer CDJ hardware and Rekordbox formats with complete metadata preservation including cue points, loops, BPM, musical keys, and artwork.
 
+**Website & User Guide**: www.traktorbridge.com
+
 ---
 
 ## 📚 Documentation Index
