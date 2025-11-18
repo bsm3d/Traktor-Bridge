@@ -1,0 +1,35 @@
+# Traktor Bridge 2.0 - Python Dependencies
+#
+# Author: Benoit (BSM) Saint-Moulin
+# Date: November 2025
+# Python: 3.13+
+# Developer: www.bsm3d.com
+# DJ/Artist: www.benoitsaintmoulin.com
+# Instagram: https://www.instagram.com/benoitsaintmoulin
+
+# Core GUI Framework
+PySide6>=6.6.0
+
+# Audio Processing & Playback
+pygame>=2.5.0
+tinytag>=1.10.0
+mutagen>=1.47.0
+
+# Image Processing
+Pillow>=10.0.0
+
+# Optional: XML Processing (enhanced parsing)
+lxml>=5.0.0
+
+# Optional: Character Encoding Detection
+chardet>=5.2.0
+
+# Optional: Audio Analysis (advanced features)
+librosa>=0.10.0
+numpy>=1.26.0
+
+# Optional: Beat Detection
+aubio>=0.4.9
+
+# Optional: Database Encryption (Rekordbox 6+ support)
+pysqlcipher3>=1.2.0
