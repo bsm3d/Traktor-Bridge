@@ -824,7 +824,7 @@ class ConverterGUI(QMainWindow, LoadingSystemMixin):
     
     def _show_playlist_details(self, playlist):
         """Show playlist details dialog."""
-        dialog = PlaylistDetailsWindow(playlist, self.key_translator, self)
+        dialog = PlaylistDetailsWindow(playlist, self.key_translator, self.audio_manager, self)
         dialog.exec()
     
     def _show_details(self):
@@ -1509,7 +1509,7 @@ if __name__ == "__main__":
     
     def _show_playlist_details(self, playlist):
         """Show playlist details dialog."""
-        dialog = PlaylistDetailsWindow(playlist, self.key_translator, self)
+        dialog = PlaylistDetailsWindow(playlist, self.key_translator, self.audio_manager, self)
         dialog.exec()
     
     def _show_details(self):

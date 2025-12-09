@@ -141,8 +141,8 @@ class TrackRow:
     
     def to_bytes(self) -> bytes:
         """Generate binary track row selon format exact CORRIGÉ"""
-        # Structure fixe (88 bytes selon spécifications RÉELLES + strings)
-        fixed_part = bytearray(88)
+        # Structure fixe (96 bytes pour accommoder tous les champs + strings)
+        fixed_part = bytearray(96)
         
         # Magic word et index shift - CORRIGÉ selon observations
         struct.pack_into('<HH', fixed_part, 0, 0x2400, 0x100)  # Magic observé dans real PDB
@@ -158,7 +158,8 @@ class TrackRow:
         struct.pack_into('<I', fixed_part, 16, file_size)
         
         # Magic constants observées dans vraies bases CDJ
-        struct.pack_into('<IIHH', fixed_part, 20, 0, 19048, 30967)
+        # unknown2 (uint32), unknown3 (uint16=19048), unknown4 (uint16=30967)
+        struct.pack_into('<IHH', fixed_part, 20, 0, 19048, 30967)
         
         # IDs de référence
         struct.pack_into('<IIIIII', fixed_part, 32, 
@@ -193,7 +194,7 @@ class TrackRow:
         # Générer les chaînes avec encodage correct
         strings_data = bytearray()
         string_offsets = []
-        current_offset = 88  # Début des chaînes après structure fixe
+        current_offset = 96  # Début des chaînes après structure fixe
         
         # 21 chaînes requises selon format CDJ
         string_fields = [
@@ -228,10 +229,10 @@ class TrackRow:
             current_offset += len(encoded_string)
         
         # Écrire les offsets dans la partie fixe (21 offsets de 2 bytes)
-        # Position 88-42 = 46 pour les offsets
-        offset_start = 46  # Ajusté pour structure 88 bytes
+        # Position 96-42 = 54 pour les offsets (ou utiliser 92 pour laisser 4 bytes après struct à offset 80)
+        offset_start = 92  # Ajusté pour structure 96 bytes (après les 12 bytes à offset 80)
         for i, offset in enumerate(string_offsets):
-            if offset_start + (i * 2) < 88:  # Vérifier bounds
+            if offset_start + (i * 2) < 96:  # Vérifier bounds
                 struct.pack_into('<H', fixed_part, offset_start + (i * 2), offset)
         
         return bytes(fixed_part) + bytes(strings_data)

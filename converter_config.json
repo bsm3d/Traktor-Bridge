@@ -1,0 +1,24 @@
+{
+  "nml_path": "C:/Users/BSM/Desktop/Collection/Traktor_3_collection.nml",
+  "output_path": "C:/Users/BSM/Desktop/export",
+  "music_root_path": "",
+  "settings": {
+    "export_format": "CDJ/USB",
+    "key_format": "Open Key",
+    "copy_music": true,
+    "verify_copy": false,
+    "cdj_target": "CDJ-2000NXS2",
+    "use_encryption": false,
+    "generate_anlz": true,
+    "master_volume": 70,
+    "auto_load_collection": true,
+    "confirm_exit": false,
+    "cache_size": 30000,
+    "memory_limit_mb": 100,
+    "worker_threads": 2,
+    "log_level": "INFO",
+    "debug_mode": true,
+    "default_output_path": "",
+    "rekordbox_version": "RB6"
+  }
+}

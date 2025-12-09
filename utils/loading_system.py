@@ -357,3 +357,28 @@ class LoadingSystemMixin:
                 )
             except Exception:
                 pass
+
+    def start_loading(self, message: str = "Loading..."):
+        """Start loading indicator with optional message."""
+        if hasattr(self, 'progress_bar'):
+            self.progress_bar.setValue(0)
+            self.progress_bar.setVisible(True)
+
+        if hasattr(self, 'progress_label'):
+            self.progress_label.setText(message)
+
+        if hasattr(self, 'convert_button'):
+            self.convert_button.setEnabled(False)
+
+        self._log_message(message)
+
+    def stop_loading(self):
+        """Stop loading indicator."""
+        if hasattr(self, 'progress_bar'):
+            self.progress_bar.setValue(100)
+
+        if hasattr(self, 'progress_label'):
+            self.progress_label.setText("Ready")
+
+        if hasattr(self, 'convert_button'):
+            self.convert_button.setEnabled(True)

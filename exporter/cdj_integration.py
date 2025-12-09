@@ -50,33 +50,56 @@ class CDJExportEngine:
             'audio_files_skipped': 0
         }
     
-    def _get_model_config(self, model: CDJModel) -> Dict:
-        """Configuration spécifique par modèle CDJ"""
-        configs = {
-            CDJ_2000: {
-                'max_cues': 4,
-                'supports_color_cues': False,
-                'supports_waveforms': True,
-                'requires_encryption': False,
-                'anlz_formats': ['.DAT']
+    def _get_model_config(self, target_model):
+        """Return configuration dict for a given CDJ model name.
+
+        Uses string keys to avoid NameError and normalizes input for flexible matching.
+        """
+        import re
+
+        def normalize(name: Optional[str]) -> str:
+            if not name:
+                return ""
+            # Uppercase and remove non-alphanumeric characters for robust matching
+            return re.sub(r'[^A-Z0-9]', '', str(name).upper())
+
+        # Model configurations (string keys)
+        models = {
+            "CDJ2000": {
+                "model": "CDJ-2000",
+                "max_tracks": 10000,
+                "pdb_version": 1,
+                # additional CDJ-2000 specific settings can be added here
             },
-            CDJModel.CDJ_2000NXS2: {
-                'max_cues': 8,
-                'supports_color_cues': True,
-                'supports_waveforms': True,
-                'requires_encryption': False,  # PDB non-chiffré pour CDJ
-                'anlz_formats': ['.DAT', '.EXT']  # DAT + EXT pour NXS2
+            "CDJ2000NXS2": {
+                "model": "CDJ-2000NXS2",
+                "max_tracks": 10000,
+                "pdb_version": 2,
+                # additional NXS2-specific settings
             },
-            CDJModel.CDJ_3000: {
-                'max_cues': 8,
-                'supports_color_cues': True,
-                'supports_waveforms': True,
-                'supports_hd_waveforms': True,
-                'requires_encryption': False,
-                'anlz_formats': ['.DAT', '.EXT', '.2EX']
+            # Add other models as needed, using normalized keys (no non-alnum chars)
+            "DEFAULT": {
+                "model": "Generic CDJ",
+                "max_tracks": 8000,
+                "pdb_version": 1,
             }
         }
-        return configs.get(model, configs[CDJModel.CDJ_2000NXS2])
+
+        norm_target = normalize(target_model)
+
+        # Exact match
+        if norm_target in models:
+            return models[norm_target]
+
+        # Partial match (e.g. "CDJ2000" inside "CDJ2000NXS2")
+        for key, cfg in models.items():
+            if key == "DEFAULT":
+                continue
+            if key in norm_target:
+                return cfg
+
+        # Fallback
+        return models["DEFAULT"]
     
     def export_collection_to_cdj(self, tracks: List, playlist_structure: List, 
                                 output_dir: Path, copy_audio: bool = True) -> Dict:
@@ -122,7 +145,7 @@ class CDJExportEngine:
             anlz_result = generate_anlz_for_tracks(
                 tracks, 
                 output_dir,  # Base path, ANLZ manager gère sous-structure
-                self.config['anlz_formats']
+                self.config.get('anlz_formats', ['DAT', 'EXT'])  # Safe default
             )
             
             generated_files.extend(anlz_result['files'])
@@ -311,7 +334,7 @@ class CDJExportEngine:
             ext_files = list(anlz_dir.rglob("*.EXT"))
             validation['anlz_files_found'] = len(dat_files) + len(ext_files)
             
-            expected_files = len(tracks) * len(self.config['anlz_formats'])
+            expected_files = len(tracks) * len(self.config.get('anlz_formats', ['DAT', 'EXT']))
             if validation['anlz_files_found'] < expected_files:
                 validation['warnings'].append(
                     f"Only {validation['anlz_files_found']} ANLZ files found, "
