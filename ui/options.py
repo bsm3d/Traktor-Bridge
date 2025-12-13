@@ -204,61 +204,69 @@ class OptionsDialog(QDialog):
         cdj_widget = QWidget()
         layout = QVBoxLayout(cdj_widget)
         layout.setContentsMargins(15, 15, 15, 15)
-        
-        # CDJ Model Group
-        model_group = QGroupBox("CDJ Hardware Target")
-        model_layout = QVBoxLayout(model_group)
-        
-        self.cdj_target_combo = QComboBox()
-        self.cdj_target_combo.addItems([
-            "CDJ-2000NXS2",
-            "CDJ-2000",
-            "CDJ-3000",
-            "XDJ-1000MK2"
-        ])
-        model_layout.addWidget(self.cdj_target_combo)
-        
-        model_help = QLabel("Select your CDJ model for optimized compatibility")
-        model_help.setStyleSheet(f"color: {self.app_config.COLORS['fg_muted']}; font-size: 9pt;")
-        model_layout.addWidget(model_help)
-        
-        layout.addWidget(model_group)
-        
+
+        # CDJ Target Info (fixed to NXS2)
+        target_group = QGroupBox("CDJ Hardware Target")
+        target_layout = QVBoxLayout(target_group)
+
+        target_label = QLabel("CDJ-2000NXS2")
+        target_label.setStyleSheet("font-weight: bold; font-size: 12pt;")
+        target_layout.addWidget(target_label)
+
+        target_help = QLabel("Traktor Bridge is optimized for CDJ-2000NXS2 hardware export")
+        target_help.setStyleSheet(f"color: {self.app_config.COLORS['fg_muted']}; font-size: 9pt;")
+        target_layout.addWidget(target_help)
+
+        layout.addWidget(target_group)
+
         # CDJ Features Group
         features_group = QGroupBox("CDJ Features")
         features_layout = QVBoxLayout(features_group)
-        
-        self.generate_anlz_check = QCheckBox("Generate ANLZ waveform files")
-        self.generate_anlz_check.setChecked(True)  # Toujours activé pour CDJ
-        self.generate_anlz_check.setEnabled(False)  # Non modifiable
-        
+
+        self.generate_anlz_check = QCheckBox("Generate ANLZ waveform files (.DAT + .EXT)")
+        self.generate_anlz_check.setChecked(True)
+        self.generate_anlz_check.setEnabled(False)
+
         features_layout.addWidget(self.generate_anlz_check)
-        
-        anlz_help = QLabel("ANLZ files are required for CDJ waveform display")
+
+        anlz_help = QLabel("ANLZ files provide waveforms and beat grids on CDJ display")
         anlz_help.setStyleSheet(f"color: {self.app_config.COLORS['fg_muted']}; font-size: 9pt;")
         features_layout.addWidget(anlz_help)
-        
+
+        # ANLZ Processes (multiprocessing)
+        anlz_proc_layout = QHBoxLayout()
+        anlz_proc_label = QLabel("ANLZ processes:")
+        self.anlz_processes_spin = QSpinBox()
+        self.anlz_processes_spin.setRange(1, 8)
+        self.anlz_processes_spin.setValue(2)
+        self.anlz_processes_spin.setToolTip(
+            "Number of parallel processes for ANLZ generation.\n"
+            "Higher = faster but more CPU/RAM usage.\n"
+            "Recommended: 2 on laptop, 4+ on desktop."
+        )
+        anlz_proc_layout.addWidget(anlz_proc_label)
+        anlz_proc_layout.addWidget(self.anlz_processes_spin)
+        anlz_proc_layout.addStretch()
+        features_layout.addLayout(anlz_proc_layout)
+
         layout.addWidget(features_group)
-        
-        # Rekordbox Version Group (pour Rekordbox Database)
+
+        # Rekordbox Version Group (pour Rekordbox Database export)
         rb_group = QGroupBox("Rekordbox Software Version")
         rb_layout = QVBoxLayout(rb_group)
-        
+
         self.rekordbox_version_combo = QComboBox()
-        self.rekordbox_version_combo.addItems([
-            "RB6",
-            "RB7"
-        ])
+        self.rekordbox_version_combo.addItems(["RB6", "RB7"])
         rb_layout.addWidget(self.rekordbox_version_combo)
-        
-        rb_help = QLabel("Target Rekordbox software version (for Database format)")
+
+        rb_help = QLabel("Target Rekordbox version (for Rekordbox Database export only)")
         rb_help.setStyleSheet(f"color: {self.app_config.COLORS['fg_muted']}; font-size: 9pt;")
         rb_layout.addWidget(rb_help)
-        
+
         layout.addWidget(rb_group)
-        
+
         layout.addStretch()
-        
+
         self.tab_widget.addTab(cdj_widget, "CDJ Settings")
     
     def _create_application_tab(self):
@@ -362,8 +370,8 @@ class OptionsDialog(QDialog):
         self.verify_copy_check.setChecked(self.settings.get('verify_copy', False))
         
         # CDJ tab
-        self.cdj_target_combo.setCurrentText(self.settings.get('cdj_target', 'CDJ-2000NXS2'))
         self.rekordbox_version_combo.setCurrentText(self.settings.get('rekordbox_version', 'RB6'))
+        self.anlz_processes_spin.setValue(self.settings.get('anlz_processes', 2))
         
         # Application tab
         self.auto_load_check.setChecked(self.settings.get('auto_load_collection', True))
@@ -424,9 +432,9 @@ class OptionsDialog(QDialog):
         self.settings['verify_copy'] = self.verify_copy_check.isChecked()
         
         # CDJ tab
-        self.settings['cdj_target'] = self.cdj_target_combo.currentText()
         self.settings['generate_anlz'] = self.generate_anlz_check.isChecked()
         self.settings['rekordbox_version'] = self.rekordbox_version_combo.currentText()
+        self.settings['anlz_processes'] = self.anlz_processes_spin.value()
         
         # Application tab
         self.settings['auto_load_collection'] = self.auto_load_check.isChecked()
@@ -454,9 +462,8 @@ class OptionsDialog(QDialog):
                 'key_format': 'Open Key',
                 'copy_music': True,
                 'verify_copy': False,
-                'cdj_target': 'CDJ-2000NXS2',
-                'use_encryption': False,
                 'generate_anlz': True,
+                'anlz_processes': 2,
                 'rekordbox_version': 'RB6',
                 'auto_load_collection': True,
                 'confirm_exit': False,

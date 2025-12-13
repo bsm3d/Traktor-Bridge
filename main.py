@@ -99,15 +99,14 @@ class ConverterGUI(QMainWindow, LoadingSystemMixin):
         self.structure = []
         self.selected_playlists = []
         
-        # Settings with defaults - CORRIGÉ export formats
+        # Settings with defaults - CDJ-2000NXS2 target
         self.settings = {
-            'export_format': 'CDJ/USB',  # CDJ hardware par défaut
+            'export_format': 'CDJ/USB',  # CDJ hardware export
             'key_format': 'Open Key',
             'copy_music': True,
             'verify_copy': False,
-            'cdj_target': 'CDJ-2000NXS2',  # Focus priorité
-            'use_encryption': False,  # PDB non-chiffré pour CDJ
             'generate_anlz': True,
+            'anlz_processes': 2,  # Nombre de process pour génération ANLZ (1-8)
             'master_volume': 70,
             'auto_load_collection': True,
             'confirm_exit': False,

@@ -42,7 +42,7 @@ class ConversionThread(QThread):
             self.logger.info(f"Starting conversion: {self.export_format}")
             
             # Router selon format d'export CORRIGÉ
-            if self.export_format in ["CDJ/USB", "Database"]:
+            if self.export_format in ["CDJUSB", "CDJ/USB", "Database"]:
                 self._run_cdj_export()
             elif self.export_format in ["Rekordbox Database", "Rekordbox SQLite"]:
                 self._run_rekordbox_database_export()
@@ -63,48 +63,42 @@ class ConversionThread(QThread):
             self.finished.emit("error", str(e))
     
     def _run_cdj_export(self):
-        """Run CDJ export with new PDB/ANLZ generators CORRIGÉ."""
-        # Import nouveau exporteur CDJ
-        from exporter.cdj_integration import CDJExportEngine, CDJModel
-        
+        """Run CDJ-2000NXS2 export with PDB/ANLZ generators."""
+        from exporter.cdj_integration import CDJExportEngine
+
         try:
-            self.logger.info("Starting CDJ export with new DeviceSQL format")
-            
+            self.logger.info("Starting CDJ-2000NXS2 export")
+
             # Préparer la structure à exporter
             structure_to_export = self._get_full_structure_for_selection()
             all_tracks = self._collect_all_tracks(structure_to_export)
-            
-            self.logger.info(f"Exporting {len(all_tracks)} tracks to CDJ format")
+
+            self.logger.info(f"Exporting {len(all_tracks)} tracks to CDJ-2000NXS2 format")
             self.progress_queue.put(("progress", (0, f"Preparing to export {len(all_tracks)} tracks")))
-            
-            # Configuration CDJ selon settings
-            cdj_model_name = self.settings.get('cdj_target', 'CDJ-2000NXS2')
-            try:
-                cdj_model = CDJModel(cdj_model_name)
-            except ValueError:
-                self.logger.warning(f"Invalid CDJ model {cdj_model_name}, using CDJ-2000NXS2")
-                cdj_model = CDJModel.CDJ_2000NXS2
-            
+
             # Configuration export
             copy_audio = self.settings.get('copy_music', True) and self.copy_music
-            
-            self.logger.info(f"Target: {cdj_model.value}")
+            verify_copy = self.settings.get('verify_copy', False) and self.verify_copy
+            anlz_processes = self.settings.get('anlz_processes', 2)
+
             self.logger.info(f"Copy audio: {copy_audio}")
+            self.logger.info(f"Verify copy: {verify_copy}")
+            self.logger.info(f"ANLZ processes: {anlz_processes}")
             self.logger.info(f"Output path: {self.output_path}")
-            
-            # Créer exporteur avec nouveau moteur
+
+            # Créer exporteur CDJ-2000NXS2
             exporter = CDJExportEngine(
-                target_model=cdj_model,
-                use_encryption=False,  # PDB binaire non-chiffré pour CDJ
-                progress_queue=self.progress_queue
+                progress_queue=self.progress_queue,
+                anlz_processes=anlz_processes
             )
-            
+
             # Export vers format CDJ
             result = exporter.export_collection_to_cdj(
                 tracks=all_tracks,
                 playlist_structure=structure_to_export,
                 output_dir=Path(self.output_path),
-                copy_audio=copy_audio
+                copy_audio=copy_audio,
+                verify_copy=verify_copy
             )
             
             # Vérifier résultat
@@ -330,26 +324,19 @@ def validate_conversion_settings(settings: Dict) -> Dict:
         'warnings': [],
         'errors': []
     }
-    
+
     # Vérifier format d'export
-    valid_formats = ["CDJ/USB", "Database", "Rekordbox Database", "XML", "Rekordbox XML", "M3U"]
+    valid_formats = ["CDJUSB", "CDJ/USB", "Database", "Rekordbox Database", "XML", "Rekordbox XML", "M3U"]
     export_format = settings.get('export_format', '')
     if export_format not in valid_formats:
         validation_result['errors'].append(f"Invalid export format: {export_format}")
         validation_result['valid'] = False
-    
-    # Vérifier modèle CDJ
-    if export_format in ["CDJ/USB", "Database"]:
-        cdj_target = settings.get('cdj_target', 'CDJ-2000NXS2')
-        valid_cdj_models = ["CDJ-2000", "CDJ-2000NXS2", "CDJ-3000", "XDJ-1000MK2"]
-        if cdj_target not in valid_cdj_models:
-            validation_result['warnings'].append(f"Unknown CDJ model: {cdj_target}, will use CDJ-2000NXS2")
-    
+
     # Vérifier paramètres audio
     if settings.get('copy_music', True):
         if not settings.get('verify_copy', False):
             validation_result['warnings'].append("Audio copy verification disabled")
-    
+
     return validation_result
 
 
@@ -366,7 +353,7 @@ def estimate_conversion_time(tracks_count: int, export_format: str, copy_audio: 
     time_per_track = base_time_per_track.get(export_format, 0.3)
     
     # Ajouter temps pour copie audio
-    if copy_audio and export_format in ["CDJ/USB", "Database"]:
+    if copy_audio and export_format in ["CDJUSB", "CDJ/USB", "Database"]:
         time_per_track += 2.0  # ~2s par fichier audio copié
     
     estimated_time = tracks_count * time_per_track

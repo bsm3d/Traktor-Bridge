@@ -3,15 +3,19 @@
 CDJ ANLZ Exporter - Générateur de fichiers d'analyse CORRIGÉ
 Compatible CDJ-2000NXS2 avec structure de chemins conforme
 Génère .DAT et .EXT selon spécifications Pioneer
+Supporte le multiprocessing pour accélérer la génération
 """
 
 import logging
 import struct
 import hashlib
+import os
 from pathlib import Path
 from typing import Dict, List, Optional, BinaryIO
 from dataclasses import dataclass
 from enum import Enum
+from types import SimpleNamespace
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 try:
     import librosa
@@ -143,16 +147,56 @@ class ANLZPathManager:
 
 class ANLZGenerator:
     """Générateur de fichiers ANLZ selon spécifications Pioneer"""
-    
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.analyzer = AudioAnalyzer()
-    
-    def generate_dat_file(self, track: Track, track_id: int, output_path: Path) -> bool:
-        """Générer fichier .DAT (format basique)"""
+
+    def _resolve_audio_path(self, file_path: str, output_dir: Path = None) -> Path:
+        """Résoudre le chemin audio (relatif ou absolu)
+
+        Si file_path est relatif (ex: Contents/track.mp3), le résoudre
+        contre output_dir pour obtenir le chemin absolu.
+
+        Args:
+            file_path: Chemin du fichier audio (peut être relatif)
+            output_dir: Répertoire racine d'export
+
+        Returns:
+            Path absolu vers le fichier audio
+        """
+        audio_path = Path(file_path)
+
+        # Si chemin absolu et existe, utiliser tel quel
+        if audio_path.is_absolute() and audio_path.exists():
+            return audio_path
+
+        # Si chemin relatif (ex: Contents/...), résoudre contre output_dir
+        if output_dir and not audio_path.is_absolute():
+            resolved = Path(output_dir) / audio_path
+            if resolved.exists():
+                self.logger.debug(f"Resolved relative path: {file_path} -> {resolved}")
+                return resolved
+
+        # Fallback: retourner le chemin original (peut échouer)
+        return audio_path
+
+    def generate_dat_file(self, track: Track, track_id: int, output_path: Path,
+                          output_dir: Path = None) -> bool:
+        """Générer fichier .DAT (format basique)
+
+        Args:
+            track: Track object avec métadonnées
+            track_id: ID unique de la track
+            output_path: Chemin complet du fichier ANLZ à créer
+            output_dir: Répertoire racine d'export (pour résoudre chemins relatifs)
+        """
         try:
+            # Résoudre chemin audio (peut être relatif après copie)
+            audio_path = self._resolve_audio_path(track.file_path, output_dir)
+
             # Analyser audio
-            analysis = self.analyzer.analyze_track(track.file_path)
+            analysis = self.analyzer.analyze_track(str(audio_path))
             
             # Construire sections ANLZ
             sections = []
@@ -183,10 +227,21 @@ class ANLZGenerator:
             self.logger.error(f"Failed to generate DAT file: {e}")
             return False
     
-    def generate_ext_file(self, track: Track, track_id: int, output_path: Path) -> bool:
-        """Générer fichier .EXT (waveforms couleur NXS2)"""
+    def generate_ext_file(self, track: Track, track_id: int, output_path: Path,
+                          output_dir: Path = None) -> bool:
+        """Générer fichier .EXT (waveforms couleur NXS2)
+
+        Args:
+            track: Track object avec métadonnées
+            track_id: ID unique de la track
+            output_path: Chemin complet du fichier ANLZ à créer
+            output_dir: Répertoire racine d'export (pour résoudre chemins relatifs)
+        """
         try:
-            analysis = self.analyzer.analyze_track(track.file_path)
+            # Résoudre chemin audio (peut être relatif après copie)
+            audio_path = self._resolve_audio_path(track.file_path, output_dir)
+
+            analysis = self.analyzer.analyze_track(str(audio_path))
             
             sections = []
             
@@ -385,35 +440,97 @@ class ANLZGenerator:
             f.seek(size_pos)
             f.write(struct.pack('>I', file_size))
 
+# ==============================================================================
+# Fonctions top-level pour multiprocessing (doivent être picklables)
+# ==============================================================================
+
+def _normalize_anlz_types(file_types: List[str]) -> List[ANLZFileType]:
+    """Normaliser les types ANLZ (accepte 'DAT', '.DAT', 'dat', etc.)"""
+    types = []
+    for ft in file_types:
+        norm = str(ft).strip().upper().lstrip('.')
+        if norm == 'DAT':
+            types.append(ANLZFileType.DAT)
+        elif norm == 'EXT':
+            types.append(ANLZFileType.EXT)
+        elif norm == '2EX':
+            types.append(ANLZFileType.TWO_EX)
+    return types
+
+
+def _anlz_worker(job: dict) -> dict:
+    """
+    Worker multiprocessing pour générer ANLZ d'une track.
+    Doit être top-level pour être picklable sur Windows (spawn).
+
+    Args:
+        job: Dict contenant:
+            - track_id: int
+            - audio_path: str (chemin ABSOLU)
+            - cue_points: list (optionnel)
+            - output_dir: str
+            - file_types: list[str] ex: ['DAT', 'EXT']
+
+    Returns:
+        Dict avec files_generated, files (str paths), errors
+    """
+    exporter = ANLZExporter()
+
+    # Créer un track minimal picklable (évite de sérialiser l'objet Track complet)
+    track = SimpleNamespace()
+    track.file_path = job["audio_path"]
+    track.cue_points = job.get("cue_points") or []
+
+    anlz_types = _normalize_anlz_types(job.get("file_types", ["DAT", "EXT"]))
+
+    result = exporter.export_track_anlz(
+        track=track,
+        track_id=int(job["track_id"]),
+        output_dir=Path(job["output_dir"]),
+        file_types=anlz_types
+    )
+
+    # Convertir Path -> str pour sérialisation inter-process
+    result["files"] = [str(p) for p in result.get("files", [])]
+    return result
+
+
 class ANLZExporter:
     """Exporteur principal ANLZ avec gestion des chemins"""
-    
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.generator = ANLZGenerator()
         self.path_manager = ANLZPathManager()
-    
-    def export_track_anlz(self, track: Track, track_id: int, 
+
+    def export_track_anlz(self, track: Track, track_id: int,
                          output_dir: Path, file_types: List[ANLZFileType]) -> Dict:
-        """Exporter fichiers ANLZ pour une track"""
+        """Exporter fichiers ANLZ pour une track
+
+        Args:
+            track: Track object avec métadonnées
+            track_id: ID unique de la track
+            output_dir: Répertoire racine d'export (utilisé pour résoudre chemins relatifs)
+            file_types: Liste des types de fichiers ANLZ à générer
+        """
         result = {
             'files_generated': 0,
             'files': [],
             'errors': 0
         }
-        
+
         for file_type in file_types:
             try:
                 # Générer chemin conforme
                 anlz_path = self.path_manager.generate_anlz_path(track_id, file_type)
                 full_path = self.path_manager.create_anlz_directories(output_dir, anlz_path)
-                
-                # Générer fichier selon type
+
+                # Générer fichier selon type (passer output_dir pour résolution chemins)
                 success = False
                 if file_type == ANLZFileType.DAT:
-                    success = self.generator.generate_dat_file(track, track_id, full_path)
+                    success = self.generator.generate_dat_file(track, track_id, full_path, output_dir)
                 elif file_type == ANLZFileType.EXT:
-                    success = self.generator.generate_ext_file(track, track_id, full_path)
+                    success = self.generator.generate_ext_file(track, track_id, full_path, output_dir)
                 
                 if success:
                     result['files_generated'] += 1
@@ -429,38 +546,85 @@ class ANLZExporter:
         return result
 
 # Factory function pour l'intégration BSM
-def generate_anlz_for_tracks(tracks: List[Track], output_dir: Path, 
-                           file_types: List[str]) -> Dict:
-    """Générer fichiers ANLZ pour collection de tracks"""
-    exporter = ANLZExporter()
-    
-    # Convertir strings vers enum
-    anlz_types = []
-    for file_type in file_types:
-        if file_type == '.DAT':
-            anlz_types.append(ANLZFileType.DAT)
-        elif file_type == '.EXT':
-            anlz_types.append(ANLZFileType.EXT)
-        elif file_type == '.2EX':
-            anlz_types.append(ANLZFileType.TWO_EX)
-    
+def generate_anlz_for_tracks(tracks: List[Track], output_dir: Path,
+                             file_types: List[str],
+                             processes: int = 2) -> Dict:
+    """Générer fichiers ANLZ pour collection de tracks.
+
+    Supporte le multiprocessing pour accélérer la génération sur CPU multi-core.
+
+    Args:
+        tracks: Liste des tracks à traiter
+        output_dir: Répertoire racine d'export
+        file_types: Liste des types ANLZ à générer ('DAT', 'EXT', '2EX')
+        processes: Nombre de process parallèles (défaut: 2, max: cpu_count)
+
+    Returns:
+        Dict avec files_generated, files, errors
+    """
+    logger = logging.getLogger(__name__)
+    output_dir = Path(output_dir)
+
+    # Clamp raisonnable: min 1, max CPU count
+    cpu_count = os.cpu_count() or 1
+    processes = max(1, min(int(processes or 1), cpu_count))
+
+    logger.info(f"Generating ANLZ files for {len(tracks)} tracks, types: {file_types}")
+
     total_files = 0
     all_files = []
     total_errors = 0
-    
-    logger = logging.getLogger(__name__)
-    logger.info(f"Generating ANLZ files for {len(tracks)} tracks, types: {file_types}")
-    
+
+    # Préparer les jobs avec chemins audio ABSOLUS
+    jobs = []
     for i, track in enumerate(tracks, 1):
-        result = exporter.export_track_anlz(track, i, output_dir, anlz_types)
-        total_files += result['files_generated']
-        all_files.extend(result['files'])
-        total_errors += result['errors']
-    
+        # Résoudre le chemin audio (peut être relatif après copie vers Contents/)
+        audio_path = Path(getattr(track, "file_path", "") or "")
+        if audio_path and not audio_path.is_absolute():
+            audio_path = output_dir / audio_path
+
+        jobs.append({
+            "track_id": i,
+            "audio_path": str(audio_path),
+            "cue_points": getattr(track, "cue_points", None),
+            "output_dir": str(output_dir),
+            "file_types": list(file_types),
+        })
+
+    # Mode séquentiel (fallback si processes <= 1)
+    if processes <= 1:
+        logger.info("ANLZ multiprocessing disabled (sequential mode)")
+        exporter = ANLZExporter()
+        anlz_types = _normalize_anlz_types(file_types)
+
+        for job in jobs:
+            track_ns = SimpleNamespace(
+                file_path=job["audio_path"],
+                cue_points=job.get("cue_points") or []
+            )
+            result = exporter.export_track_anlz(track_ns, job["track_id"], output_dir, anlz_types)
+            total_files += result.get("files_generated", 0)
+            all_files.extend([str(p) for p in result.get("files", [])])
+            total_errors += result.get("errors", 0)
+
+        logger.info(f"ANLZ generation completed: {total_files} files, {total_errors} errors")
+        return {"files_generated": total_files, "files": all_files, "errors": total_errors}
+
+    # Mode multiprocessing
+    logger.info(f"ANLZ multiprocessing enabled: {processes} processes")
+
+    with ProcessPoolExecutor(max_workers=processes) as pool:
+        futures = [pool.submit(_anlz_worker, job) for job in jobs]
+
+        for fut in as_completed(futures):
+            try:
+                result = fut.result()
+                total_files += int(result.get("files_generated", 0))
+                all_files.extend(result.get("files", []))
+                total_errors += int(result.get("errors", 0))
+            except Exception as e:
+                logger.error(f"ANLZ worker failed: {e}", exc_info=True)
+                total_errors += 1
+
     logger.info(f"ANLZ generation completed: {total_files} files, {total_errors} errors")
-    
-    return {
-        'files_generated': total_files,
-        'files': all_files,
-        'errors': total_errors
-    }
+    return {"files_generated": total_files, "files": all_files, "errors": total_errors}
