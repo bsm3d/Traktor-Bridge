@@ -15,9 +15,11 @@ from enum import Enum
 from datetime import datetime
 
 from parser.bsm_nml_parser import Track, Node, TraktorNMLParser
+from exporter.cdj_anlz_exporter import ANLZPathManager, ANLZFileType
+import time
 
-# Constants from reverse engineering - CORRIGÉ pour CDJ hardware
-PAGE_SIZE = 8192  # Real CDJ hardware uses 8192 byte pages
+# Constants from reverse engineering - CORRIGÉ selon specs Pioneer
+PAGE_SIZE = 4096  # Standard Pioneer (4096), CDJ-3000 peut utiliser 8192
 EMPTY_TABLE = 0x03ffffff
 
 class PageType(Enum):
@@ -105,17 +107,19 @@ class DeviceSQLString:
             length_and_kind = len(utf8_bytes) * 2 + 1
             return bytes([length_and_kind]) + utf8_bytes
         
-        # Long ASCII (format 0x40) - CORRIGÉ
+        # Long ASCII (format 0x40) - CORRIGÉ avec Big Endian header
         elif self._is_ascii(self.text) and len(utf8_bytes) <= 65535:
             # 0x40 = bit pattern: 0100 0000 (S=0, E=1, A=1, other=0)
-            header = struct.pack('<HH', len(utf8_bytes) + 4, 0)
+            # Header en Big Endian selon specs Pioneer
+            header = struct.pack('>HH', len(utf8_bytes) + 4, 0)
             return b'\x40' + header + utf8_bytes
         
-        # Long UTF-16LE (format 0x90) - CORRIGÉ
+        # Long UTF-16LE (format 0x90) - CORRIGÉ avec Big Endian header
         else:
             utf16_bytes = self.text.encode('utf-16le')
             # 0x90 = bit pattern: 1001 0000 (S=0, E=1, A=0, N=0, W=1)
-            header = struct.pack('<HH', len(utf16_bytes) + 4, 0)
+            # Header en Big Endian, contenu en Little Endian
+            header = struct.pack('>HH', len(utf16_bytes) + 4, 0)
             return b'\x90' + header + utf16_bytes
     
     def _is_ascii(self, text: str) -> bool:
@@ -138,6 +142,7 @@ class TrackRow:
         self.album_id = album_id
         self.genre_id = genre_id
         self.key_id = key_id
+        self.logger = logging.getLogger(__name__)  # Pour _ensure_relative_path
     
     def to_bytes(self) -> bytes:
         """Generate binary track row selon format exact CORRIGÉ"""
@@ -157,9 +162,12 @@ class TrackRow:
         struct.pack_into('<III', fixed_part, 4, bitmask, sample_rate, 0)  # composer_id = 0
         struct.pack_into('<I', fixed_part, 16, file_size)
         
+        # Timestamp Unix pour date_added (offset 0x14 = 20)
+        date_added_timestamp = int(time.time())  # Unix timestamp actuel
+        struct.pack_into('<I', fixed_part, 20, date_added_timestamp)
+        
         # Magic constants observées dans vraies bases CDJ
-        # unknown2 (uint32), unknown3 (uint16=19048), unknown4 (uint16=30967)
-        struct.pack_into('<IHH', fixed_part, 20, 0, 19048, 30967)
+        struct.pack_into('<HH', fixed_part, 24, 19048, 30967)
         
         # IDs de référence
         struct.pack_into('<IIIIII', fixed_part, 32, 
@@ -212,13 +220,13 @@ class TrackRow:
             "",  # release_date
             "",  # mix_name
             "",  # unknown_string_7
-            f"PIONEER/USBANLZ/ANLZ{self.track_id:06d}.DAT",  # analyze_path
+            ANLZPathManager.generate_anlz_path(self.track_id, ANLZFileType.DAT),  # analyze_path - CORRIGÉ pour sync avec fichiers physiques
             datetime.now().strftime('%Y-%m-%d'),  # analyze_date
             "",  # comment
             self.track.title or "Unknown",  # title
             "",  # unknown_string_8
             Path(self.track.file_path).name if self.track.file_path else "unknown.mp3",  # filename
-            self.track.file_path or "unknown.mp3"  # file_path
+            self._ensure_relative_path(self.track.file_path) if self.track.file_path else "unknown.mp3"  # file_path - FORCÉ RELATIF
         ]
         
         # Encoder chaque chaîne avec DeviceSQL
@@ -236,6 +244,36 @@ class TrackRow:
                 struct.pack_into('<H', fixed_part, offset_start + (i * 2), offset)
         
         return bytes(fixed_part) + bytes(strings_data)
+    
+    def _ensure_relative_path(self, file_path: str) -> str:
+        """Force le chemin à être relatif (Contents/...) - ROBUSTESSE CRITIQUE
+        
+        Empêche l'écriture de chemins absolus (C:/, D:/) dans le PDB.
+        Les CDJ requièrent des chemins relatifs stricts depuis la racine USB.
+        """
+        if not file_path:
+            return "unknown.mp3"
+        
+        # Détecter et supprimer les chemins absolus Windows/Unix
+        path_str = str(file_path)
+        
+        # Supprimer les chemins absolus Windows (C:/, D:/, etc.)
+        if len(path_str) >= 3 and path_str[1:3] == ':\\':
+            # Chemin absolu Windows détecté, extraire le nom de fichier
+            self.logger.warning(f"Absolute path detected, converting to relative: {path_str}")
+            return f"Contents/{Path(path_str).name}"
+        
+        # Supprimer les chemins absolus Unix (/home/...)
+        if path_str.startswith('/'):
+            self.logger.warning(f"Unix absolute path detected, converting to relative: {path_str}")
+            return f"Contents/{Path(path_str).name}"
+        
+        # Vérifier que le chemin commence par Contents/
+        if not path_str.startswith('Contents/'):
+            self.logger.warning(f"Path doesn't start with Contents/, fixing: {path_str}")
+            return f"Contents/{path_str}"
+        
+        return path_str
     
     def _convert_rating(self, traktor_rating) -> int:
         """Convert Traktor rating to Rekordbox scale"""
@@ -315,16 +353,17 @@ class GenreRow:
 class Page:
     """Page DeviceSQL avec gestion heap/index"""
     
-    def __init__(self, page_type: PageType, page_index: int):
+    def __init__(self, page_type: PageType, page_index: int, page_size: int = 4096):
         self.header = PageHeader(page_index=page_index, type=page_type)
         self.rows = []
         self.row_offsets = []
         self.heap_size = 0
+        self.page_size = page_size
         
     def add_row(self, row_data: bytes) -> bool:
         """Ajouter une ligne si espace suffisant"""
         required_space = len(row_data) + 2  # +2 pour offset dans index
-        available = PAGE_SIZE - 40 - self.heap_size - (len(self.rows) + 1) * 2
+        available = self.page_size - 40 - self.heap_size - (len(self.rows) + 1) * 2
         
         if required_space > available:
             return False
@@ -339,13 +378,13 @@ class Page:
         self.header.num_rows_small = len(self.rows)
         self.header.num_rows_large = len(self.rows)
         self.header.used_size = self.heap_size
-        self.header.free_size = PAGE_SIZE - 40 - self.heap_size - len(self.rows) * 2
+        self.header.free_size = self.page_size - 40 - self.heap_size - len(self.rows) * 2
         
         return True
     
     def to_bytes(self) -> bytes:
         """Générer page binaire complète"""
-        page_data = bytearray(PAGE_SIZE)
+        page_data = bytearray(self.page_size)
         
         # Header
         header_bytes = self.header.to_bytes()
@@ -373,7 +412,7 @@ class Page:
         
         for group_index in range(num_groups):
             # Position de base du groupe
-            base_offset = PAGE_SIZE - (group_index + 1) * 0x24
+            base_offset = self.page_size - (group_index + 1) * 0x24
             
             # Flags de présence (tous les bits à 1 pour les lignes présentes)
             start_row = group_index * 16
@@ -393,11 +432,22 @@ class Page:
 class PDBExporter:
     """Exporteur PDB conforme aux spécifications DeviceSQL CORRIGÉ"""
     
-    def __init__(self):
+    def __init__(self, page_size: int = 4096, target_model: str = "CDJ-2000NXS2"):
+        """Initialize PDB Exporter
+        
+        Args:
+            page_size: Taille de page (4096 standard, 8192 pour CDJ-3000 Optimized)
+            target_model: Modèle CDJ cible pour optimisations
+        """
         self.logger = logging.getLogger(__name__)
         self.next_page_index = 1
         self.sequence = 2
         self.tables = {}
+        self.page_size = page_size
+        self.target_model = target_model
+        
+        # Log configuration
+        self.logger.info(f"PDB Exporter initialized: page_size={page_size}, target={target_model}")
         
     def export_collection_to_pdb(self, tracks: List[Track], 
                                 output_path: Path) -> Dict:
@@ -481,7 +531,7 @@ class PDBExporter:
             self._add_row_to_pages(tracks_pages, row.to_bytes())
     
     def _create_table_pages(self, page_type: PageType) -> List[Page]:
-        """Créer les pages pour un type de table"""
+        """Créer liste de pages pour une table"""
         pages = []
         self.tables[page_type] = pages
         return pages
@@ -489,9 +539,10 @@ class PDBExporter:
     def _add_row_to_pages(self, pages: List[Page], row_data: bytes):
         """Ajouter une ligne aux pages (créer nouvelle page si nécessaire)"""
         if not pages or not pages[-1].add_row(row_data):
-            # Créer nouvelle page
+            # Créer nouvelle page avec page_size configurable
             new_page = Page(pages[0].header.type if pages else PageType.TRACKS, 
-                           self.next_page_index)
+                           self.next_page_index,
+                           self.page_size)
             self.next_page_index += 1
             
             # Lier à la page précédente
@@ -534,9 +585,9 @@ class PDBExporter:
                 )
                 table_pointers.append(pointer)
         
-        # En-tête principal
+        # En-t\u00eate principal
         f.write(struct.pack('<I', 0))  # magic (toujours 0)
-        f.write(struct.pack('<I', PAGE_SIZE))  # len_page
+        f.write(struct.pack('<I', self.page_size))  # len_page
         f.write(struct.pack('<I', len(table_pointers)))  # num_tables
         f.write(struct.pack('<I', self.next_page_index))  # next_unused_page
         f.write(struct.pack('<I', 5))  # unknown1 (observé comme 5)

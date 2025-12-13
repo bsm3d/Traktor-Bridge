@@ -255,6 +255,10 @@ class ConverterGUI(QMainWindow, LoadingSystemMixin):
         self._create_music_input_section(main_layout)
         main_layout.addSpacing(10)
         
+        # Output directory section (CORRECTION B: UI manquante)
+        self._create_output_section(main_layout)
+        main_layout.addSpacing(10)
+        
         # Playlist section (ORIGINAL)
         self._create_playlist_section(main_layout)
         
@@ -368,6 +372,34 @@ class ConverterGUI(QMainWindow, LoadingSystemMixin):
         browse_button.clicked.connect(self._browse_music_root)
         
         input_layout.addWidget(self.music_input)
+        input_layout.addWidget(browse_button)
+        
+        layout.addWidget(input_frame)
+        parent_layout.addWidget(frame)
+    
+    def _create_output_section(self, parent_layout):
+        """Create output directory selection section (CORRECTION B)."""
+        frame = QFrame()
+        layout = QVBoxLayout(frame)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        label = QLabel("2b. Output Directory (Optional)")
+        label.setStyleSheet("color: #00b4d8; font-weight: bold;")
+        layout.addWidget(label)
+        
+        input_frame = QFrame()
+        input_layout = QHBoxLayout(input_frame)
+        input_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.output_input = QLineEdit()
+        self.output_input.setPlaceholderText("Select output directory (or choose during conversion)...")
+        if self.output_path:
+            self.output_input.setText(self.output_path)
+        
+        browse_button = QPushButton("Browse...")
+        browse_button.clicked.connect(self._browse_output_folder)
+        
+        input_layout.addWidget(self.output_input)
         input_layout.addWidget(browse_button)
         
         layout.addWidget(input_frame)
@@ -631,6 +663,16 @@ class ConverterGUI(QMainWindow, LoadingSystemMixin):
         if folder_path:
             self.music_root_path = folder_path
             self.music_input.setText(folder_path)
+            self._save_configuration()
+    
+    def _browse_output_folder(self):
+        """Browse for output directory (CORRECTION B: méthode UI)."""
+        folder_path = QFileDialog.getExistingDirectory(
+            self, "Select Output Directory", self.output_path
+        )
+        if folder_path:
+            self.output_path = folder_path
+            self.output_input.setText(folder_path)
             self._save_configuration()
     
     def _browse_output(self):
@@ -1137,16 +1179,6 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
-    
-    def _show_format_menu(self):
-        """Show export format selection menu CORRIGÉ"""
-        menu = QMenu(self)
-        
-        # Formats disponibles avec descriptions
-        formats = [
-            ("CDJ/USB", "🎛️ CDJ Hardware (PDB Binary + ANLZ)", "Export for CDJ-2000NXS2 hardware"),
-            ("Rekordbox Database", "💾 Rekordbox Software (SQLite)", "Export for Rekordbox software"),
             ("Rekordbox XML", "📄 XML Format", "Standard XML for import into Rekordbox"),
             ("M3U Playlists", "📝 M3U Files", "Universal playlist format")
         ]

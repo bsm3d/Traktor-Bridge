@@ -95,6 +95,7 @@ class UsageDialog(QDialog):
             <tr><td><kbd>Ctrl+D</kbd></td><td>View Playlist Details</td></tr>
             <tr><td><kbd>Ctrl+L</kbd></td><td>View Conversion Log</td></tr>
             <tr><td><kbd>Ctrl+Return</kbd></td><td>Start Conversion</td></tr>
+            <tr><td><kbd>Ctrl+Q</kbd></td><td>Exit Application</td></tr>
             <tr><td><kbd>F1</kbd></td><td>Show This Help</td></tr>
             <tr><td><kbd>Escape</kbd></td><td>Cancel/Close</td></tr>
         </table>
@@ -110,9 +111,10 @@ class UsageDialog(QDialog):
 
         <h3>Export Formats:</h3>
         <ul>
-            <li><strong>Database (CDJ):</strong> SQLite database for Pioneer CDJ/XDJ players</li>
-            <li><strong>XML (Rekordbox):</strong> XML file for Rekordbox and compatible software</li>
-            <li><strong>M3U (Universal):</strong> Simple playlists for broad compatibility</li>
+            <li><strong>CDJ/USB (Hardware):</strong> DeviceSQL binary format (.PDB) for Pioneer CDJ/XDJ hardware players with ANLZ waveforms</li>
+            <li><strong>Rekordbox Database (Software):</strong> SQLite database format for Rekordbox desktop software</li>
+            <li><strong>Rekordbox XML:</strong> XML file format for Rekordbox and compatible software</li>
+            <li><strong>M3U (Universal):</strong> Simple playlist files for broad compatibility across DJ software and media players</li>
         </ul>
 
         <h3>Audio Features:</h3>
