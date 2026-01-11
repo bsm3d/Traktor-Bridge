@@ -1178,7 +1178,15 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main())    
+
+    def _show_format_menu(self):
+        menu = QMenu(self)
+        
+        # Formats disponibles avec descriptions
+        formats = [
+            ("CDJ/USB", "🎛️ CDJ Hardware (PDB Binary + ANLZ)", "Export for CDJ-2000NXS2 hardware"),
+            ("Rekordbox Database", "💾 Rekordbox Software (SQLite)", "Export for Rekordbox software"),
             ("Rekordbox XML", "📄 XML Format", "Standard XML for import into Rekordbox"),
             ("M3U Playlists", "📝 M3U Files", "Universal playlist format")
         ]
