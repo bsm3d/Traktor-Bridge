@@ -502,6 +502,7 @@ class ConverterGUI(QMainWindow, LoadingSystemMixin):
         self.settings['export_format'] = format_name
         self.export_format_button.setText(format_name)
         self._save_configuration()
+        self._update_ui_for_format()
         
         # Show CDJ info if selecting CDJ format
         if format_name == "CDJ/USB":
@@ -537,6 +538,29 @@ class ConverterGUI(QMainWindow, LoadingSystemMixin):
         """Handle verify copy checkbox"""
         self.settings['verify_copy'] = checked
         self._save_configuration()
+    
+    def _update_ui_for_format(self):
+        """Update UI elements based on selected format"""
+        format_name = self.settings['export_format']
+        
+        # CDJ model selector visibility
+        is_cdj_export = format_name in ["CDJ/USB", "Database"]
+        self.cdj_model_combo.setEnabled(is_cdj_export)
+        
+        # Copy options for formats that support it
+        supports_copy = format_name in ["CDJ/USB", "Database", "M3U Playlists"]
+        self.copy_music_check.setEnabled(supports_copy)
+        self.verify_copy_check.setEnabled(supports_copy and self.copy_music_check.isChecked())
+        
+        # Update progress label hint
+        if format_name == "CDJ/USB":
+            self.progress_label.setText("Ready to export for CDJ hardware...")
+        elif format_name == "Rekordbox Database":
+            self.progress_label.setText("Ready to export Rekordbox database...")
+        elif format_name == "Rekordbox XML":
+            self.progress_label.setText("Ready to export XML file...")
+        elif format_name == "M3U Playlists":
+            self.progress_label.setText("Ready to export M3U playlists...")
     
     def _create_progress_section(self, parent_layout):
         """Create progress section."""
@@ -1179,76 +1203,7 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-            ("Rekordbox XML", "📄 XML Format", "Standard XML for import into Rekordbox"),
-            ("M3U Playlists", "📝 M3U Files", "Universal playlist format")
-        ]
-        
-        for format_key, format_title, format_desc in formats:
-            action = menu.addAction(format_title)
-            action.setToolTip(format_desc)
-            action.triggered.connect(lambda checked, fmt=format_key: self._on_format_selected(fmt))
-            
-            # Mark current format
-            if format_key == self.settings['export_format']:
-                action.setCheckable(True)
-                action.setChecked(True)
-        
-        menu.exec(self.export_format_button.mapToGlobal(self.export_format_button.rect().bottomLeft()))
-    
-    def _on_format_selected(self, format_name: str):
-        """Handle format selection CORRIGÉ"""
-        self.settings['export_format'] = format_name
-        self.export_format_button.setText(format_name)
-        self._save_configuration()
-        self._update_ui_for_format()
-        
-        # Show info dialog for CDJ format
-        if format_name == "CDJ/USB":
-            self._show_cdj_info_dialog()
-    
-    def _show_cdj_info_dialog(self):
-        """Show CDJ-2000NXS2 specific information"""
-        msg = QMessageBox(self)
-        msg.setWindowTitle("CDJ Hardware Export")
-        msg.setIcon(QMessageBox.Icon.Information)
-        msg.setText("CDJ-2000NXS2 Hardware Export")
-        msg.setInformativeText(
-            "<b>Requirements for CDJ hardware:</b><br><br>"
-            "• USB must be formatted <b>FAT32</b> (MBR partition)<br>"
-            "• Maximum ~10,000 tracks supported<br>"
-            "• ASCII-only filenames (no accents)<br>"
-            "• Maximum path length: 256 characters<br><br>"
-            "<b>Traktor Bridge will automatically:</b><br>"
-            "• Generate binary PDB database<br>"
-            "• Create ANLZ waveform files<br>"
-            "• Sanitize file paths for compatibility<br>"
-            "• Create DeviceSQL.edb for CDJ recognition"
-        )
-        msg.exec()
-    
-    def _update_ui_for_format(self):
-        """Update UI elements based on selected format"""
-        format_name = self.settings['export_format']
-        
-        # CDJ model selector visibility
-        is_cdj_export = format_name in ["CDJ/USB", "Database"]
-        self.cdj_model_combo.setEnabled(is_cdj_export)
-        
-        # Copy options for formats that support it
-        supports_copy = format_name in ["CDJ/USB", "Database", "M3U Playlists"]
-        self.copy_music_check.setEnabled(supports_copy)
-        self.verify_copy_check.setEnabled(supports_copy and self.copy_music_check.isChecked())
-        
-        # Update progress label hint
-        if format_name == "CDJ/USB":
-            self.progress_label.setText("Ready to export for CDJ hardware...")
-        elif format_name == "Rekordbox Database":
-            self.progress_label.setText("Ready to export Rekordbox database...")
-        elif format_name == "Rekordbox XML":
-            self.progress_label.setText("Ready to export XML file...")
-        elif format_name == "M3U Playlists":
-            self.progress_label.setText("Ready to export M3U playlists...")
-    
+
     def _on_cdj_model_changed(self, model_name: str):
         """Handle CDJ model selection change"""
         self.settings['cdj_target'] = model_name
