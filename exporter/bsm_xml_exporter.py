@@ -249,7 +249,7 @@ class RekordboxXMLExporter:
         encoded_path = '/'.join(encoded_parts)
         
         # Create proper file:// URL
-        return f"file://localhost{encoded_path}"
+        return f"file://localhost/{encoded_path}"
     
     def _add_position_marks(self, track_elem: ET.Element, track: Track):
         """Add cue points as POSITION_MARK elements"""
