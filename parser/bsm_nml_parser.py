@@ -79,6 +79,8 @@ class Track:
     # File information
     file_path: str = ""
     file_size: int = 0
+    streaming_service: str = ""
+    streaming_id: str = ""
     volume_id: str = ""
     bitrate: int = 0
     
@@ -376,12 +378,19 @@ class TraktorNMLParser:
             
             location = entry.find('LOCATION')
             if location is not None:
-                volume = location.get('VOLUME', '')
-                dir_path = location.get('DIR', '')
-                file_name = location.get('FILE', '')
+                # If WEBADDRESS is present, use it as key (for streaming tracks)
+                traktor_key = location.get('WEBADDRESS', '')
                 
-                if volume and dir_path and file_name:
-                    traktor_key = f"{volume}{dir_path}{file_name}"
+                # Otherwise construct file path key
+                if not traktor_key:
+                    volume = location.get('VOLUME', '')
+                    dir_path = location.get('DIR', '')
+                    file_name = location.get('FILE', '')
+                
+                    if volume and dir_path and file_name:
+                        traktor_key = f"{volume}{dir_path}{file_name}"
+                    
+                if traktor_key:
                     collection_map[traktor_key] = entry
         
         self._report_progress(90, f"Collection indexed: {len(collection_map)} tracks")
@@ -507,7 +516,7 @@ class TraktorNMLParser:
             track.lock_time = entry.get('LOCK_MODIFICATION_TIME', '')
         
         # File location with smart resolution
-        track.file_path, track.volume_id = self._parse_file_location(entry)
+        track.file_path, track.volume_id, track.streaming_service, track.streaming_id = self._parse_file_location(entry)
         
         # INFO section - comprehensive metadata
         info = entry.find('INFO')
@@ -561,11 +570,17 @@ class TraktorNMLParser:
         
         return track
     
-    def _parse_file_location(self, entry: ET.Element) -> Tuple[str, str]:
+    def _parse_file_location(self, entry: ET.Element) -> Tuple[str, str, str, str]:
         """Parse and resolve file location with cache fallback"""
         location = entry.find('LOCATION')
         if location is None:
-            return '', ''
+            return '', '', '', ''
+        
+        # If it’s from a streaming service, return service ID instead of file path
+        webaddress = location.get('WEBADDRESS', '')
+        if webaddress.startswith('beatport://'):
+            return '', '', 'BEATPORT', webaddress.rsplit('/', 1)[-1]
+        # Add more streaming service patterns here if you have them
         
         volume_id = location.get('VOLUME', '')
         file_from_nml = location.get('FILE', '')
@@ -575,7 +590,7 @@ class TraktorNMLParser:
             filename = urllib.parse.unquote(os.path.basename(file_from_nml))
             cached_path = self.file_cache.get(filename)
             if cached_path:
-                return cached_path, volume_id
+                return cached_path, volume_id, '', ''
         
         # Strategy 2: Reconstruct original path
         dir_path = location.get('DIR', '').replace('/:', '/')
@@ -592,7 +607,7 @@ class TraktorNMLParser:
         if len(reconstructed) > 2 and reconstructed.startswith('/') and reconstructed[2] == ':':
             reconstructed = reconstructed[1:]
         
-        return reconstructed, volume_id
+        return reconstructed, volume_id, '', ''
     
     def _parse_cue_points(self, entry: ET.Element, track: Track):
         """Parse cue points with T3/T4 compatibility"""
@@ -722,8 +737,8 @@ class TraktorNMLParser:
         
         if not track.audio_id:
             issues.append("Missing AUDIO_ID")
-        if not track.file_path:
-            issues.append("Missing file path")
+        if not track.file_path and not track.streaming_id:
+            issues.append("Missing file path or streaming ID")
         if track.bpm <= 0:
             issues.append("Invalid BPM")
         if track.playtime <= 0:
