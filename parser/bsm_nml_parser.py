@@ -113,6 +113,10 @@ class Track:
     audio_id: str = ""
     artwork_data: Optional[bytes] = None
     stem_data: Optional[Dict] = field(default_factory=dict)
+    
+    @property
+    def identifier(self):
+        return self.audio_id or self.file_path or self.streaming_id
 
 @dataclass 
 class Node:

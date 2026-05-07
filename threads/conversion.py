@@ -275,7 +275,7 @@ class ConversionThread(QThread):
                     if node.type in ['playlist', 'smartlist'] and hasattr(node, 'tracks'):
                         for track in node.tracks:
                             # Utiliser audio_id si disponible, sinon file_path
-                            track_key = getattr(track, 'audio_id', None) or getattr(track, 'file_path', None)
+                            track_key = getattr(track, 'identifier', None)
                             if track_key and track_key not in track_seen:
                                 all_tracks.append(track)
                                 track_seen.add(track_key)

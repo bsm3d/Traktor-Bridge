@@ -99,8 +99,7 @@ class RekordboxXMLExporter:
         mapping = {}
         
         for track in tracks:
-            # Use audio_id as primary key, fallback to file path
-            key = track.audio_id or track.file_path
+            key = track.identifier
             if key:
                 mapping[key] = self.track_id_counter
                 self.track_id_counter += 1
@@ -136,7 +135,7 @@ class RekordboxXMLExporter:
                             track_mapping: Dict[str, int]):
         """Add single track to collection"""
         # Get TrackID from mapping
-        key = track.audio_id or track.file_path
+        key = track.identifier
         track_id = track_mapping.get(key, 0)
         
         if track_id == 0:
@@ -341,7 +340,7 @@ class RekordboxXMLExporter:
             
             # Add track references
             for track in node.tracks:
-                key = track.audio_id or track.file_path
+                key = track.identifier
                 track_id = track_mapping.get(key)
                 
                 if track_id:
@@ -409,7 +408,7 @@ def export_nml_to_rekordbox_xml(nml_path: str, output_path: str,
             for node in nodes:
                 if node.type in ['playlist', 'smartlist']:
                     for track in node.tracks:
-                        track_key = track.audio_id or track.file_path
+                        track_key = track.identifier
                         if track_key and track_key not in track_seen:
                             all_tracks.append(track)
                             track_seen.add(track_key)
