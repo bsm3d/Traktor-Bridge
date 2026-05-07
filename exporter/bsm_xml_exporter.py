@@ -99,8 +99,7 @@ class RekordboxXMLExporter:
         mapping = {}
         
         for track in tracks:
-            # Use audio_id as primary key, fallback to file path
-            key = track.audio_id or track.file_path
+            key = track.identifier
             if key:
                 mapping[key] = self.track_id_counter
                 self.track_id_counter += 1
@@ -136,7 +135,7 @@ class RekordboxXMLExporter:
                             track_mapping: Dict[str, int]):
         """Add single track to collection"""
         # Get TrackID from mapping
-        key = track.audio_id or track.file_path
+        key = track.identifier
         track_id = track_mapping.get(key, 0)
         
         if track_id == 0:
@@ -151,7 +150,7 @@ class RekordboxXMLExporter:
                                   Album=track.album,
                                   Grouping="",
                                   Genre=track.genre,
-                                  Kind=self._get_file_kind(track.file_path),
+                                  Kind=self._get_file_kind(track),
                                   Size=str(track.file_size),
                                   TotalTime=str(int(track.playtime)),
                                   DiscNumber="0",
@@ -164,7 +163,7 @@ class RekordboxXMLExporter:
                                   Comments=track.comment,
                                   PlayCount=str(track.play_count),
                                   Rating=str(self._convert_rating(track.ranking)),
-                                  Location=self._format_file_location(track.file_path),
+                                  Location=self._format_file_location(track),
                                   Remixer=track.remixer,
                                   Tonality=self.key_mapper.convert_key(track.musical_key),
                                   Label=track.label,
@@ -180,12 +179,15 @@ class RekordboxXMLExporter:
         # Add cue points as POSITION_MARK elements
         self._add_position_marks(track_elem, track)
     
-    def _get_file_kind(self, file_path: str) -> str:
+    def _get_file_kind(self, track: Track) -> str:
         """Determine file kind from extension"""
-        if not file_path:
+        if track.streaming_service:
+            return track.streaming_service
+        
+        if not track.file_path:
             return "MP3 File"
         
-        ext = Path(file_path).suffix.lower()
+        ext = Path(track.file_path).suffix.lower()
         
         kind_mapping = {
             '.mp3': 'MP3 File',
@@ -227,13 +229,16 @@ class RekordboxXMLExporter:
             return 0
         return min(5, int((ranking / 255.0) * 5))
     
-    def _format_file_location(self, file_path: str) -> str:
+    def _format_file_location(self, track: Track) -> str:
         """Format file path as Rekordbox file:// URL"""
-        if not file_path:
+        if track.streaming_id and track.streaming_service:
+            return self._format_streaming_location(track)
+        
+        if not track.file_path:
             return ""
         
         # Normalize path separators to forward slashes
-        normalized_path = file_path.replace('\\', '/')
+        normalized_path = track.file_path.replace('\\', '/')
         
         # Remove Traktor-specific path prefixes
         if normalized_path.startswith('/:'):
@@ -250,6 +255,14 @@ class RekordboxXMLExporter:
         
         # Create proper file:// URL
         return f"file://localhost{encoded_path}"
+    
+    def _format_streaming_location(self, track: Track) -> str:
+        """Format streaming ID as Rekordbox file:// URL"""
+        if track.streaming_service == 'BEATPORT':
+            return f"file://localhost//v4/catalog/tracks/{track.streaming_id}/"
+        # Add more streaming services if you know their patterns
+        else:
+            return ''
     
     def _add_position_marks(self, track_elem: ET.Element, track: Track):
         """Add cue points as POSITION_MARK elements"""
@@ -321,12 +334,13 @@ class RekordboxXMLExporter:
             # Create playlist node
             playlist_node = ET.SubElement(parent, 'NODE',
                                          Type="1", 
+                                         KeyType="0",
                                          Name=node.name,
                                          Entries=str(len(node.tracks)))
             
             # Add track references
             for track in node.tracks:
-                key = track.audio_id or track.file_path
+                key = track.identifier
                 track_id = track_mapping.get(key)
                 
                 if track_id:
@@ -394,7 +408,7 @@ def export_nml_to_rekordbox_xml(nml_path: str, output_path: str,
             for node in nodes:
                 if node.type in ['playlist', 'smartlist']:
                     for track in node.tracks:
-                        track_key = track.audio_id or track.file_path
+                        track_key = track.identifier
                         if track_key and track_key not in track_seen:
                             all_tracks.append(track)
                             track_seen.add(track_key)
