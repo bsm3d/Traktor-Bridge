@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 660" width="1400" height="660" role="img" aria-labelledby="t d">
+  <title id="t">Traktor Bridge data flow</title>
+  <desc id="d">Six collection formats are read into one model, optionally relocated and edited, then exported to a CDJ USB key, rekordbox XML, M3U8 or Traktor NML.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6c757d"/>
+    </marker>
+    <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#00b4d8"/>
+    </marker>
+    <style>
+      text { font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; fill: #f8f9fa; }
+      .h { font-size: 14px; font-weight: 600; }
+      .s { font-size: 11px; fill: #adb5bd; }
+      .col { font-size: 11px; font-weight: 700; fill: #6c757d; letter-spacing: .12em; }
+      .box { fill: #212529; stroke: #495057; stroke-width: 1.2; }
+      .key { fill: #212529; stroke: #00b4d8; stroke-width: 1.6; }
+      .dest { fill: #2b3035; stroke: #6c757d; stroke-width: 1.2; }
+      .link { fill: none; stroke: #6c757d; stroke-width: 1.4; }
+      .main { fill: none; stroke: #00b4d8; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="660" rx="16" fill="#16191c"/>
+
+  <text x="30" y="44" style="font-size:22px;font-weight:300">Traktor <tspan fill="#00b4d8" font-weight="600">Bridge</tspan> 3.0 - data flow</text>
+
+  <!-- column titles -->
+  <text class="col" x="30" y="84">SOURCES</text>
+  <text class="col" x="290" y="84">ONE MODEL</text>
+  <text class="col" x="585" y="84">EXPORT</text>
+  <text class="col" x="820" y="84">WRITTEN</text>
+  <text class="col" x="1195" y="84">PLAYED IN</text>
+
+  <!-- ============ sources ============ -->
+  <g>
+    <rect class="box" x="30" y="100" width="200" height="48" rx="8"/>
+    <text class="h" x="44" y="120">Traktor NML</text><text class="s" x="44" y="138">collection.nml, Pro 3 and 4</text>
+
+    <rect class="box" x="30" y="160" width="200" height="48" rx="8"/>
+    <text class="h" x="44" y="180">rekordbox XML</text><text class="s" x="44" y="198">DJ_PLAYLISTS</text>
+
+    <rect class="box" x="30" y="220" width="200" height="48" rx="8"/>
+    <text class="h" x="44" y="240">VirtualDJ</text><text class="s" x="44" y="258">database.xml, .vdjfolder</text>
+
+    <rect class="box" x="30" y="280" width="200" height="48" rx="8"/>
+    <text class="h" x="44" y="300">Serato DJ</text><text class="s" x="44" y="318">database V2, crates, file tags</text>
+
+    <rect class="box" x="30" y="340" width="200" height="48" rx="8"/>
+    <text class="h" x="44" y="360">Mixxx</text><text class="s" x="44" y="378">mixxxdb.sqlite</text>
+
+    <rect class="box" x="30" y="400" width="200" height="48" rx="8"/>
+    <text class="h" x="44" y="420">M3U / M3U8</text><text class="s" x="44" y="438">any playlist</text>
+  </g>
+
+  <!-- sources into the model -->
+  <g class="link">
+    <path d="M230,124 C262,124 258,262 288,262" marker-end="url(#arrow)"/>
+    <path d="M230,184 C262,184 258,270 288,270" marker-end="url(#arrow)"/>
+    <path d="M230,244 C258,244 258,278 288,278" marker-end="url(#arrow)"/>
+    <path d="M230,304 C258,304 258,286 288,286" marker-end="url(#arrow)"/>
+    <path d="M230,364 C262,364 258,294 288,294" marker-end="url(#arrow)"/>
+    <path d="M230,424 C262,424 258,302 288,302" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- ============ model ============ -->
+  <rect class="box" x="290" y="100" width="230" height="62" rx="8"/>
+  <text class="h" x="304" y="124">Music folder</text>
+  <text class="s" x="304" y="144">missing files found again by name</text>
+  <path class="link" d="M405,162 L405,196" marker-end="url(#arrow)"/>
+
+  <rect class="key" x="290" y="200" width="230" height="160" rx="10"/>
+  <text class="h" x="306" y="228" style="font-size:16px">Collection model</text>
+  <text class="s" x="306" y="254">tracks, playlists and folders</text>
+  <text class="s" x="306" y="274">hot cues A-H, memory cues, loops</text>
+  <text class="s" x="306" y="294">beatgrid, bpm, one key table</text>
+  <text class="s" x="306" y="314">fixed units: ms, s, kbps, ISO dates</text>
+  <text class="s" x="306" y="334">shared tracks are one object</text>
+
+  <path class="link" d="M405,364 L405,396" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <rect class="box" x="290" y="400" width="230" height="78" rx="8"/>
+  <text class="h" x="304" y="424">Playlist details</text>
+  <text class="s" x="304" y="444">preview, sort, reorder, remove</text>
+  <text class="s" x="304" y="462">set, move and rename cues</text>
+
+  <path class="main" d="M520,280 L583,280" marker-end="url(#arrow-accent)"/>
+
+  <!-- ============ export hub ============ -->
+  <rect class="key" x="585" y="236" width="170" height="88" rx="10"/>
+  <text class="h" x="601" y="264" style="font-size:16px">Export</text>
+  <text class="s" x="601" y="286">ticked playlists only</text>
+  <text class="s" x="601" y="304">background, cancellable</text>
+
+  <g>
+    <path class="main" d="M755,262 C790,262 785,245 818,245" marker-end="url(#arrow-accent)"/>
+    <path class="link" d="M755,292 C800,292 780,494 818,494" marker-end="url(#arrow)"/>
+    <path class="link" d="M755,300 C805,300 780,556 818,556" marker-end="url(#arrow)"/>
+    <path class="link" d="M755,308 C810,308 780,618 818,618" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- ============ CDJ / USB ============ -->
+  <rect x="820" y="100" width="330" height="360" rx="12" fill="none" stroke="#00b4d8" stroke-width="1.4" stroke-dasharray="6 5"/>
+  <text class="h" x="836" y="126" fill="#00b4d8" style="fill:#00b4d8">CDJ / USB key</text>
+
+  <rect class="box" x="836" y="140" width="298" height="54" rx="8"/>
+  <text class="h" x="850" y="162">Audio copy</text>
+  <text class="s" x="850" y="182">Contents/Artist/Album, one file at a time on USB</text>
+
+  <rect class="box" x="836" y="206" width="298" height="54" rx="8"/>
+  <text class="h" x="850" y="228">Waveform analysis</text>
+  <text class="s" x="850" y="248">block decoding, 3 bands, up to 8 processes, cached</text>
+
+  <rect class="box" x="836" y="272" width="298" height="54" rx="8"/>
+  <text class="h" x="850" y="294">ANLZ .DAT / .EXT</text>
+  <text class="s" x="850" y="314">beatgrid, cues, colour and detail waveforms</text>
+
+  <rect class="box" x="836" y="338" width="298" height="54" rx="8"/>
+  <text class="h" x="850" y="360">export.pdb</text>
+  <text class="s" x="850" y="380">DeviceSQL tables, as rekordbox writes them</text>
+
+  <rect class="box" x="836" y="404" width="298" height="42" rx="8"/>
+  <text class="h" x="850" y="430">Artwork + player settings</text>
+
+  <path class="link" d="M985,260 L985,270" marker-end="url(#arrow)"/>
+
+  <!-- key to the players -->
+  <path class="main" d="M1150,280 L1193,280" marker-end="url(#arrow-accent)"/>
+  <rect class="dest" x="1195" y="244" width="175" height="72" rx="10"/>
+  <text class="h" x="1211" y="272">USB key</text>
+  <text class="s" x="1211" y="294">FAT32 or exFAT</text>
+  <path class="main" d="M1282,316 L1282,352" marker-end="url(#arrow-accent)"/>
+  <rect class="key" x="1195" y="356" width="175" height="72" rx="10"/>
+  <text class="h" x="1211" y="384">CDJ-2000NXS2</text>
+  <text class="s" x="1211" y="406">and rekordbox 6 players</text>
+
+  <!-- ============ file exports ============ -->
+  <rect class="box" x="820" y="472" width="330" height="44" rx="8"/>
+  <text class="h" x="836" y="499">rekordbox XML</text>
+  <text class="s" x="962" y="499">cues, grid, colours</text>
+
+  <rect class="box" x="820" y="534" width="330" height="44" rx="8"/>
+  <text class="h" x="836" y="561">M3U8</text>
+  <text class="s" x="962" y="561">one per playlist, folders kept</text>
+
+  <rect class="box" x="820" y="596" width="330" height="44" rx="8"/>
+  <text class="h" x="836" y="623">Traktor NML</text>
+  <text class="s" x="962" y="623">collection Traktor imports</text>
+
+  <g class="link">
+    <path d="M1150,494 L1193,494" marker-end="url(#arrow)"/>
+    <path d="M1150,556 L1193,556" marker-end="url(#arrow)"/>
+    <path d="M1150,618 L1193,618" marker-end="url(#arrow)"/>
+  </g>
+  <rect class="dest" x="1195" y="472" width="175" height="44" rx="8"/>
+  <text class="h" x="1211" y="499">rekordbox</text>
+  <rect class="dest" x="1195" y="534" width="175" height="44" rx="8"/>
+  <text class="h" x="1211" y="561">Any player</text>
+  <rect class="dest" x="1195" y="596" width="175" height="44" rx="8"/>
+  <text class="h" x="1211" y="623">Traktor</text>
+</svg>
