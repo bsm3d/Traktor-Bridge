@@ -1,4 +1,4 @@
-# Traktor Bridge 3.2
+# Traktor Bridge 3.3
 
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-support%20Traktor%20Bridge-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/bsm3d)
 
@@ -36,7 +36,7 @@ Traktor NML file.
 
 ## Download
 
-**Windows, portable**: download `TraktorBridge-3.2-win64.zip` from the
+**Windows, portable**: download `TraktorBridge-3.3-win64.zip` from the
 [releases](https://github.com/bsm3d/Traktor-Bridge/releases/latest), unzip it anywhere and run
 `TraktorBridge.exe`. No installer, settings and log are written next to the program.
 

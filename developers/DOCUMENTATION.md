@@ -1,4 +1,4 @@
-# Traktor Bridge 3.2 - Developer documentation
+# Traktor Bridge 3.3 - Developer documentation
 
 > The source code is not published. File and module names below are given to explain how the
 > program is organised, they are not files of this repository.
@@ -257,7 +257,7 @@ and the time left.
 Every export writes `traktor_bridge_checksums.json` at its root (`export/manifest.py`):
 
 ```json
-{"format": 1, "program": "Traktor Bridge 3.2", "created": "2026-09-30T12:00:00",
+{"format": 1, "program": "Traktor Bridge 3.3", "created": "2026-09-30T12:00:00",
  "algorithm": "sha256",
  "files": {"Contents/Artist/Album/track.mp3": {"size": 9000000, "mtime": 1790000000, "sha256": "..."}},
  "seal": "sha256 of the files object, compact JSON, sorted keys"}
@@ -285,7 +285,7 @@ the analysis, the USB export is the way to go when you want a key ready without 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <DJ_PLAYLISTS Version="1.0.0">
-  <PRODUCT Name="Traktor Bridge" Version="3.2" Company="..."/>
+  <PRODUCT Name="Traktor Bridge" Version="3.3" Company="..."/>
   <COLLECTION Entries="N">
     <TRACK TrackID="1" Name="..." Artist="..." ... Location="file://localhost/C:/Music/a.mp3">
       <TEMPO Inizio="0.068" Bpm="121.90" Metro="4/4" Battito="1"/>
@@ -508,7 +508,7 @@ included. On a USB key the write speed of the key is the limit.
 
 `Build.bat` creates a clean venv and runs `build.py`, `python build.py` uses the current Python.
 The result is `dist/TraktorBridge/` (windowed exe, `runtime/` folder) and
-`dist/TraktorBridge-3.2-win64.zip`. No `.py` file ships, the modules are compiled into the PYZ,
+`dist/TraktorBridge-3.3-win64.zip`. No `.py` file ships, the modules are compiled into the PYZ,
 unused Qt parts are removed and librosa is left out. `build.py` renames `dist/` and `build/`
 before clearing them and stops if a running copy of the app holds them.
 
