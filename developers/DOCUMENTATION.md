@@ -1,7 +1,4 @@
-# Traktor Bridge 3.3 - Developer documentation
-
-> The source code is not published. File and module names below are given to explain how the
-> program is organised, they are not files of this repository.
+# Traktor Bridge 3.4 - Developer documentation
 
 This document covers how Traktor Bridge is built and what I know about the formats it reads
 and writes, the Pioneer USB export above all. Facts checked against keys written by rekordbox
@@ -257,7 +254,7 @@ and the time left.
 Every export writes `traktor_bridge_checksums.json` at its root (`export/manifest.py`):
 
 ```json
-{"format": 1, "program": "Traktor Bridge 3.3", "created": "2026-09-30T12:00:00",
+{"format": 1, "program": "Traktor Bridge 3.4", "created": "2026-09-30T12:00:00",
  "algorithm": "sha256",
  "files": {"Contents/Artist/Album/track.mp3": {"size": 9000000, "mtime": 1790000000, "sha256": "..."}},
  "seal": "sha256 of the files object, compact JSON, sorted keys"}
@@ -285,7 +282,7 @@ the analysis, the USB export is the way to go when you want a key ready without 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <DJ_PLAYLISTS Version="1.0.0">
-  <PRODUCT Name="Traktor Bridge" Version="3.3" Company="..."/>
+  <PRODUCT Name="Traktor Bridge" Version="3.4" Company="..."/>
   <COLLECTION Entries="N">
     <TRACK TrackID="1" Name="..." Artist="..." ... Location="file://localhost/C:/Music/a.mp3">
       <TEMPO Inizio="0.068" Bpm="121.90" Metro="4/4" Battito="1"/>
@@ -477,14 +474,19 @@ Every section: tag, header length, total length.
   `PWAV` / `PWV3`: `whiteness << 5 | height` (0-31). `PWV5`: `r << 13 | g << 10 | b << 7 |
   height << 2`. `PWV4`: 6 bytes per column, the players draw bytes 3-5 (red, green, blue).
 - `PCPT` (56 bytes): `hot_cue` 0 for a memory cue, 1-8 for A-H, type 1 cue or 2 loop, time and
-  loop end in ms. `PCP2` adds the name in UTF-16BE.
+  loop end in ms. `PCP2` adds the name in UTF-16BE and, for hot cues, the rekordbox colour id (byte
+  28) and `0, R, G, B` as its last 4 bytes. Traktor has no colour per cue, the type decides
+  (cue blue, load aqua, loop green; fade and grid cues are not exported); a `#RRGGBB` from another
+  source goes to the nearest of the 8 colours. Memory cues stay uncoloured.
 
 ---
 
 ## 9. Audio analysis
 
 Traktor, and the other sources, already did the musical analysis: bpm, grid, key and cues come
-from the collection. Only the waveforms need the audio.
+from the collection. Only the waveforms need the audio. A music folder (`sources/folder.py`) has
+no collection: bpm and key are read from the tags (`tags.basic`, ID3, FLAC, MP4), and there is
+no grid, it is laid from 0 ms. Nothing detects a tempo from the audio.
 
 `analysis.Audio` decodes each track once with soundfile, block by block into one reused buffer.
 Loading a whole track at once allocates about 150 MB of fresh memory per file, and on Windows
@@ -508,29 +510,55 @@ included. On a USB key the write speed of the key is the limit.
 
 `Build.bat` creates a clean venv and runs `build.py`, `python build.py` uses the current Python.
 The result is `dist/TraktorBridge/` (windowed exe, `runtime/` folder) and
-`dist/TraktorBridge-3.3-win64.zip`. No `.py` file ships, the modules are compiled into the PYZ,
+`dist/TraktorBridge-3.4-win64.zip`. No `.py` file ships, the modules are compiled into the PYZ,
 unused Qt parts are removed and librosa is left out. `build.py` renames `dist/` and `build/`
 before clearing them and stops if a running copy of the app holds them.
 
-The core (`tags.py`, `sources/`, `export/cdj/`) is compiled to native modules first:
-`compile_core.py` copies the package to `build/stage`, turns each core module into a `.pyd`
+Every module of the package, the interface included, is compiled to native modules first:
+`compile_core.py` copies the package to `build/stage`, turns each module into a `.pyd`
 with Nuitka (`pip install nuitka`, it fetches MinGW64 on the first run) and PyInstaller
 then packs that staged copy. The sources in the repository are never touched, the tests
 run unchanged against `build/stage` (`PYTHONPATH=build/stage`, from another folder).
 Two rules came out of it: modules are compiled one at a time (parallel Nuitka runs shared
 caches and produced modules that crash on import), and no module may carry the name of a
-standard module (`pdb.py` became `pdbwrite.py`). The `__init__.py` files stay Python, and
+standard module (`pdb.py` became `pdbwrite.py`). The `__init__.py` files stay Python (and `__main__.py`, the launcher of `python -m`), and
 PyInstaller cannot see imports inside a `.pyd`, so `traktor_bridge.spec` lists them by hand.
 
-Two pieces also exist in C++, `native/tbcore.cpp`, built by `compile_core.py` into
-`tbcore.dll` next to `export/cdj/native.py` (ctypes, plain C interface, no exception crosses it):
-the page layout of `export.pdb` (`tb_pdb_build`, same as `devicesql.build_py`) and the waveform
-bands (`tb_fold`, `tb_bands`, same as `analysis.fold` and `Audio.bands_py`). The Python versions
-stay as the reference and the fallback: without the DLL, or with `TB_PURE_PYTHON=1`, they run.
-`tests/test_native.py` compares both (the page file byte for byte, the bands to the last float32
-bit) and an export made by the built exe is identical to a pure Python one. The compiler is
-`g++` or `clang++` if present, `TB_CXX`, or the zig that Nuitka downloaded. Built with
-`-ffp-contract=off`: a fused multiply-add would change the last bit of the filters.
+The CDJ exporters also exist in C++, `native/tbcore.cpp` with `rows.inc`, `anlz.inc` and
+`anlz_build.inc`, built by `compile_core.py` into `tbcore.dll` next to `export/cdj/native.py`
+(ctypes, plain C interface, flat arrays in and bytes out, no exception crosses it):
+
+- `tb_pdb_write`: the whole `export.pdb` from the tracks and the playlist tree, rows, id
+  lookups in order of first use, page layout (`pdbwrite.build_py_file`, `devicesql.build_py`);
+- `tb_anlz_build`: the ANLZ0000.DAT and .EXT of a track, beat grid, cues and the five waveforms
+  (`anlz.build_py`);
+- `tb_fold`, `tb_bands`: the mono folding and the waveform bands (`analysis`).
+
+The Python versions stay as the reference and the fallback: without the DLL, with
+`TB_PURE_PYTHON=1`, or when the C++ side refuses a value (a field that does not fit), they run.
+`tests/test_native.py` and `tests/test_native_exporters.py` compare both on random libraries
+(files byte for byte, bands to the last float32 bit), and an export made by the built exe is
+identical to a pure Python one. The compiler is `g++` or `clang++` if present, `TB_CXX`, or the
+zig that Nuitka downloaded. Built with `-ffp-contract=off`: a fused multiply-add would change
+the last bit of the filters.
+
+The DLL is hardened, none of it changes a result (the tests compare every byte): symbols and
+`.pdb` stripped, unused code dropped (`-s`, `--gc-sections`), the exports renamed `q0` to `q5`
+(`hide.h` maps the readable names of the source, `native.NAMES` those of the loader), the
+distinctive format constants put back through a volatile read (`K32`) and the section names,
+color names and path strings stored xored and decoded when used (`HS`). This only makes a static
+read slower: the layouts are documented in this file anyway. Crinkler, UPX and the like were
+left out, they make executables and not loadable libraries, or raise antivirus false positives.
+
+**Startup check.** `compile_core.py` writes the SHA-256 of every native module of the staged
+package (the `.pyd` files and `tbcore.dll`) into `traktor_bridge/_seal.py`, packed in the
+executable, and `build.py` fails if the built folder differs from it. At startup,
+`integrity.check()` runs before any core module is imported and compares the files of
+`runtime/traktor_bridge/` with the seal: a file changed, missing or added beside them stops the
+program with exit code 3 (a dialog in the window, stderr with `--export` and `--verify`) and
+the findings go to `traktor_bridge.log`. A run from the sources has no seal and is not
+checked. It stops a swapped or patched file in the unzipped folder, not someone who rebuilds
+the executable with a new seal.
 `python compile_core.py --native` builds only the DLL next to the sources.
 
 `multiprocessing.freeze_support()` and the `__main__` guard are required: the analysis

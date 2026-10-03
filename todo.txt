@@ -1,0 +1,30 @@
+Traktor Bridge 3.4 : to do
+
+To check on a player
+- Cue colours (PCP2 id + RGB, by cue type for Traktor): the colour_code byte before the RGB is left at 0,
+  see if the CDJ-2000NXS2 draws the colours.
+- PCPT status field, on a rekordbox export that has cues.
+- Players other than the CDJ-2000NXS2 (XDJ-XZ, CDJ-3000).
+
+CDJ export
+- PWV4 bytes 0-2 unknown, filled with the column level, the players only draw 3-5.
+- exportExt.pdb not written (rekordbox 6+ only, the players read the key without it).
+- Index pages of tables 0 and 19 list at most 1004 data pages (about 7000 tracks), compare
+  with a large rekordbox export how it lists more.
+
+Sources to confirm on real files (written from the published layouts)
+- VirtualDJ: saved loop Size taken as beats, Poi Color format, playlists found under Playlists/ and Folders/.
+- Serato: MP4 / M4A tags not read (cues of m4a files missing), smart crates ignored,
+  crate paths assumed UTF-16 (older crates may be latin-1).
+- Mixxx beatgrid (beats blob) not read, only bpm.
+
+Features
+- Details: save the playlist as NML or rekordbox XML too (M3U8 is done).
+- Main window: drop files or folders on a playlist of the list, a playlist made by hand survives a reload.- Details: a loop icon on the cue pads (loops only get a white border today).
+- Cue pads: letters A-H like the players, numbers 1-8 as an option.
+- Waveforms for M4A / AAC in the portable build.
+
+Left out on purpose
+- Smartlists are exported empty (query not evaluated), Traktor 4 stems are ignored.
+- Fade and grid cues of Traktor: a CDJ has no such cue.
+- PQT2, PSSI and .2EX (CDJ-3000 only).

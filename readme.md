@@ -1,4 +1,4 @@
-# Traktor Bridge 3.3
+# Traktor Bridge 3.4
 
 [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-support%20Traktor%20Bridge-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/bsm3d)
 
@@ -36,9 +36,16 @@ Traktor NML file.
 
 ## Download
 
-**Windows, portable**: download `TraktorBridge-3.3-win64.zip` from the
+**Windows, portable**: download `TraktorBridge-3.4-win64.zip` from the
 [releases](https://github.com/bsm3d/Traktor-Bridge/releases/latest), unzip it anywhere and run
 `TraktorBridge.exe`. No installer, settings and log are written next to the program.
+
+**From source**, Windows, macOS or Linux, Python 3.11 or newer:
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
 
 ## Using it
 
@@ -55,6 +62,10 @@ Double click a playlist to check it before exporting: preview player with the wa
 pads, sort, filter, drag to reorder, Del to remove a track, and a cue timeline to move, rename
 or delete cues. What you change there goes into the export.
 
+File > New playlist (Ctrl+N) makes an empty one: drop audio files or folders on its list, or use
+Add files, then reorder and set cues. Save as M3U8 keeps it as a file, a new or edited playlist
+is otherwise lost when the collection is reloaded.
+
 ![Cue timeline](images/cue_timeline.png)
 
 ## Formats
@@ -67,6 +78,7 @@ or delete cues. What you change there goes into the export.
 | Serato DJ `_Serato_/database V2` | crates, cues, loops and beatgrid from the file tags |
 | Mixxx `mixxxdb.sqlite` | playlists, crates, cues, keys |
 | M3U / M3U8 | the files, artist and title |
+| A music folder | File > Open a music folder (Ctrl+Shift+O): each folder is a playlist, title, artist, bpm and key from the tags, no beatgrid |
 
 | Export | Written |
 | --- | --- |
@@ -104,7 +116,8 @@ export and the copies that differ from their source are written again.
 
 ```bash
 TraktorBridge.exe --export COLLECTION OUTPUT [--format FORMAT] [--music FOLDER] [--reference KEY]
-TraktorBridge.exe --verify OUTPUT
+python main.py --export COLLECTION OUTPUT [--format FORMAT] [--music FOLDER] [--reference KEY]
+python main.py --verify OUTPUT
 ```
 
 `--reference` imports the player files from a key exported by rekordbox, once. FORMAT is `CDJ/USB` (default), `Rekordbox XML`, `M3U` or `Traktor NML`. The report goes to
@@ -112,9 +125,18 @@ TraktorBridge.exe --verify OUTPUT
 against its checksums and exits with 1 when a file is damaged or missing. The exe has no console, use
 `start /wait` from a prompt.
 
+## Portable build
+
+```bash
+Build.bat          # clean venv, dependencies, then build.py
+python build.py    # with the current Python
+```
+
+It produces `dist/TraktorBridge/` and `dist/TraktorBridge-3.4-win64.zip`.
+
 ## For developers
 
-The program is free to download, its source code is not published. How it is built and what I know about the formats, the Pioneer USB export above all, is in
+How it is built and what I know about the formats, the Pioneer USB export above all, is in
 [developers/DOCUMENTATION.md](developers/DOCUMENTATION.md), along with the research method
 behind it.
 
@@ -131,7 +153,7 @@ the website hosting.
 
 [PolyForm Noncommercial 1.0.0](LICENSE): free for personal, educational and any other
 noncommercial use, modification included. Commercial use needs my prior authorization, ask
-by opening an issue on this repository or through my website. Copies must keep the license and the copyright notice.
+through the GitHub repository. Copies must keep the license and the copyright notice.
 
 ## Disclaimer
 

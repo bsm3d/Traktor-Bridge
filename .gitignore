@@ -1,1 +1,34 @@
-*.zip
+# personal settings and logs
+traktor_bridge.json
+*.log
+*.tmp
+*.part
+
+# the author's own rekordbox player files, kept local (personal build only)
+traktor_bridge/export/cdj/rbref/
+
+# C++ core, built by compile_core.py
+traktor_bridge/export/cdj/tbcore.*
+traktor_bridge/export/cdj/libtbcore.*
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+dist/
+
+# audio and full keys stay local (copyrighted music)
+developers/Piste de profilage/
+developers/doc ref valide/
+*.mp3
+*.aif
+*.aiff
+*.wav
+*.flac
+*.m4a
+
+
+# kept on disk, not published
+old/
+tests/
