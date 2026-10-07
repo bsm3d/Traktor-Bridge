@@ -131,7 +131,11 @@ def restore(path: str, destination: str, progress=None, cancel=None) -> str:
     verify(path, lambda pct, msg: cb(pct // 4, msg), cancel)
     staging = Path(tempfile.mkdtemp(prefix=".tb-restore-", dir=target.parent))
     try:
-        with zipfile.ZipFile(path) as archive:
+        try:
+            archive = zipfile.ZipFile(path)
+        except NotImplementedError as e:        # a ZIP made by a version of the format Python does not read
+            raise ValueError(f"{os.path.basename(path)} uses a ZIP version that cannot be read: {e}") from e
+        with archive:
             entries = archive.infolist()
             total = _entry_limits(entries)
             names = set()
@@ -153,6 +157,8 @@ def restore(path: str, destination: str, progress=None, cancel=None) -> str:
                 ):
                     raise ValueError(f"Unexpected backup entry: {name}")
             for name in ("project.json", "manifest.json"):
+                if name not in names:
+                    raise ValueError(f"This is not a complete backup: {name} is missing from the ZIP")
                 if archive.getinfo(name).file_size > 256 << 20:
                     raise ValueError(f"Backup metadata is too large: {name}")
             def metadata(name):

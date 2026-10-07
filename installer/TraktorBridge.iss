@@ -4,7 +4,11 @@
 
 #define AppName "Traktor Bridge"
 #ifndef AppVersion
-  #define AppVersion "3.5"
+  #define AppVersion "3.5.1"
+#endif
+; the file version needs four numeric parts, so it is not derived from AppVersion
+#ifndef AppFileVersion
+  #define AppFileVersion "3.5.1.0"
 #endif
 #define AppExe "TraktorBridge.exe"
 
@@ -17,7 +21,7 @@ AppPublisher=Benoit Saint-Moulin
 AppPublisherURL=https://www.traktorbridge.com
 AppSupportURL=https://www.traktorbridge.com
 AppUpdatesURL=https://www.traktorbridge.com
-VersionInfoVersion={#AppVersion}.0.0
+VersionInfoVersion={#AppFileVersion}
 ; Settings and log live next to the exe, so the program goes in a folder the user can write to
 PrivilegesRequired=lowest
 DefaultDirName={autopf}\{#AppName}

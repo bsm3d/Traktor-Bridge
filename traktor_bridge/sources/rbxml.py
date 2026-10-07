@@ -10,7 +10,7 @@ import defusedxml.ElementTree as ET
 
 from .. import keys
 from ..model import CUE, FADE_IN, FADE_OUT, LOAD, LOOP, Cue, Node, Track
-from . import Progress, check_size, index_folder, num, relocate
+from . import Progress, check_size, index_folder, num, parse_xml, position, relocate
 
 # POSITION_MARK Type
 _KINDS = {0: CUE, 1: FADE_IN, 2: FADE_OUT, 3: LOAD, 4: LOOP}
@@ -57,13 +57,18 @@ def read_track(el: ET.Element) -> Track:
 
     tempo = el.find("TEMPO")
     if tempo is not None:
-        t.grid = num(tempo.get("Inizio")) * 1000
+        first = position(tempo.get("Inizio"))
+        if first is not None:
+            t.grid = first * 1000
 
     for pm in el.findall("POSITION_MARK"):
-        start = num(pm.get("Start")) * 1000
-        end = pm.get("End")
+        start = position(pm.get("Start"))
+        if start is None:
+            continue
+        start *= 1000
+        stop = num(pm.get("End"), None) if pm.get("End") else None
         c = Cue(name=pm.get("Name", ""), kind=_KINDS.get(int(num(pm.get("Type"))), CUE),
-                start=start, length=num(end) * 1000 - start if end else 0.0,
+                start=start, length=stop * 1000 - start if stop is not None else 0.0,
                 hotcue=int(num(pm.get("Num"), -1)))
         r, gr, b = pm.get("Red"), pm.get("Green"), pm.get("Blue")
         if r is not None and gr is not None and b is not None:
@@ -96,7 +101,7 @@ def read_nodes(parent: ET.Element, by_id: dict[str, Track], by_loc: dict[str, Tr
 def load(path: str, music_root: str = "", progress: Progress | None = None) -> list[Node]:
     cb = progress or (lambda pct, msg: None)
     check_size(path)
-    root = ET.parse(path).getroot()
+    root = parse_xml(path)
     found = index_folder(music_root) if music_root else {}
 
     by_id, by_loc = {}, {}

@@ -1,4 +1,4 @@
-# Traktor Bridge 3.5
+# Traktor Bridge 3.5.1
 
 Traktor Bridge was designed for users of Traktor, the DJ software from Native Instruments.
 It is a central hub: the leading DJ programs exchange playlists through it, and with them the
@@ -104,11 +104,11 @@ Edits update that model; the selected exporter writes it to the destination form
 
 ## Download
 
-**Windows, installer (64-bit)**: download `TraktorBridge-3.5-setup.exe` from the
+**Windows, installer (64-bit)**: download `TraktorBridge-3.5.1-setup.exe` from the
 [releases](https://github.com/bsm3d/Traktor-Bridge/releases/latest) and run it. It installs for your
 user only, no admin rights.
 
-**Windows, portable (64-bit)**: download `Portable_TraktorBridge-3.5-win64.zip` from the
+**Windows, portable (64-bit)**: download `Portable_TraktorBridge-3.5.1-win64.zip` from the
 [releases](https://github.com/bsm3d/Traktor-Bridge/releases/latest), unzip it anywhere and run
 `TraktorBridge.exe`. No installer, settings and log are written next to the program.
 
@@ -234,7 +234,7 @@ Build.bat          # clean venv, dependencies, then build.py
 python build.py    # with the current Python
 ```
 
-It produces `dist/TraktorBridge/` and `dist/Portable_TraktorBridge-3.5-win64.zip`.
+It produces `dist/TraktorBridge/` and `dist/Portable_TraktorBridge-3.5.1-win64.zip`.
 
 ## For developers
 

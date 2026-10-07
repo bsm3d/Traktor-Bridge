@@ -2,7 +2,7 @@
 # Traktor Bridge : checksums of every file an export writes, and their verification
 
 """Export manifest: paths, sizes, modification times and SHA-256.
-Hashes are collected during writes and reused for unchanged files. Verification
+Hashes are collected during writes, and reused only for audio left in place. Verification
 reads the drive back rather than trusting those cached entries."""
 
 from __future__ import annotations
@@ -189,8 +189,9 @@ class Manifest:
         return os.path.relpath(path, self.base).replace("\\", "/")
 
     def known(self, path: str) -> str:
-        """Hash of a file already on the drive, from the previous manifest when the
-        file did not change since, '' when it has to be read."""
+        """Hash of an audio file left in place, from the previous manifest when the file did
+        not change since, '' when it has to be read. Only for files this export does not
+        write: a rewritten file can keep its size and, on FAT, its time stamp."""
         e = self.old.get(self.rel(path))
         try:
             return e["sha256"] if e and same_stat(e, os.stat(path)) else ""
@@ -198,8 +199,10 @@ class Manifest:
             return ""
 
     def add(self, path: str, sha: str = ""):
+        """sha is the hash of the bytes written. Without it the file is read, a carried over
+        entry is the caller's choice (known)."""
         st = os.stat(path)
-        sha = sha or self.known(path) or sha256_file(path)
+        sha = sha or sha256_file(path)
         with self.lock:
             self.files[self.rel(path)] = {"size": st.st_size, "mtime": int(st.st_mtime), "sha256": sha}
 

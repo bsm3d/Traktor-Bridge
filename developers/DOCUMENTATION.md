@@ -1,4 +1,4 @@
-# Traktor Bridge 3.5 - Developer documentation
+# Traktor Bridge 3.5.1 - Developer documentation
 
 This document covers how Traktor Bridge is built and what I know about the formats it reads
 and writes, the Pioneer USB export above all.
@@ -266,6 +266,13 @@ looked up there by name, sub-folders included. Only missing files are relocated.
 Every reader returns the same thing: a list of `Node` (folders and playlists) whose `Track`
 objects use the units of section 4. A file larger than 1 GiB is refused before it is read (64 MiB
 for an M3U, 256 MiB for a project).
+
+A number that is not finite (`inf`, `nan`, `1e999`) or beyond 1e15 is dropped by every reader, as if
+the attribute were missing. A cue or a beat grid whose position is such a number is skipped.
+
+An XML file whose encoding label Python does not know (`encoding="TTF-8"`) is refused with a
+`ValueError` by the rekordbox and VirtualDJ readers. A `.vdjfolder` with such a label is skipped,
+and a Traktor file is read as UTF-8.
 
 The recipes below follow one shape. **You need** lists the inputs, **Steps** the order of work,
 **Pitfalls** what breaks and why, **Check** how to know it worked. The reference part under each
@@ -632,6 +639,7 @@ duration.
 - No collection means no grid and no cues. There is no beat entry on the key until a first beat is
   set in the cue editor.
 - Audio extensions are `.mp3 .wav .flac .aiff .aif .m4a .mp4 .aac .ogg .alac`.
+- Natural order treats only decimal digits as numbers. A superscript digit in a name is plain text.
 - The tagged bpm is only a number. A track that does not start on a beat has no valid grid.
 
 **Check:** the playlist count equals the number of folders that directly hold audio files.
@@ -660,6 +668,8 @@ duration.
 - A shared track is stored once and referenced by index, so two playlists that list the same track
   share one object after loading. Keep that if you write a project.
 - Unknown keys are ignored and a newer `version` is refused.
+- `tracks`, `cues` and `children` must be lists, and a missing one is empty. Any other type refuses
+  the load with a `ValueError`. A settings path that is not text is dropped.
 - Paths written relative to the JSON make a project movable. A backup restored to a new folder
   relies on it.
 
@@ -863,17 +873,19 @@ application this is **Tools > Verify an export**.
 Every export writes `traktor_bridge_checksums.json` at its root (`export/manifest.py`):
 
 ```json
-{"format": 1, "program": "Traktor Bridge 3.5", "created": "2026-09-30T12:00:00",
+{"format": 1, "program": "Traktor Bridge 3.5.1", "created": "2026-09-30T12:00:00",
  "algorithm": "sha256",
  "files": {"Contents/Artist/Album/track.mp3": {"size": 9000000, "mtime": 1790000000, "sha256": "..."}},
  "seal": "sha256 of the files object, compact JSON, sorted keys"}
 ```
 
 - Paths are relative to the export root, with `/`.
-- Audio is hashed while it is copied. The ANLZ files, artwork and M3U are hashed from the bytes
-  written. Building the manifest costs no extra read.
-- A file left in place by a later export keeps its entry when its size and time did not change
-  (2 seconds of tolerance, because of FAT).
+- Audio is hashed while it is copied. The ANLZ files, artwork, M3U and `export.pdb` are hashed from
+  the bytes written. Building the manifest costs no extra read.
+- Only audio left in place by a later export keeps its entry, when its size and time did not change
+  (2 seconds of tolerance, because of FAT). A file the export writes always gets the hash of the
+  bytes written, never an entry carried over: two exports of the same size within 2 seconds would
+  otherwise keep a stale hash.
 - The previous manifest is read, then removed, when an export starts. A cancelled export leaves
   none rather than an outdated one. The new one is written atomically at the end.
 
@@ -933,7 +945,7 @@ without rekordbox.
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <DJ_PLAYLISTS Version="1.0.0">
-  <PRODUCT Name="Traktor Bridge" Version="3.5" Company="..."/>
+  <PRODUCT Name="Traktor Bridge" Version="3.5.1" Company="..."/>
   <COLLECTION Entries="N">
     <TRACK TrackID="1" Name="..." Artist="..." ... Location="file://localhost/C:/Music/a.mp3">
       <TEMPO Inizio="0.068" Bpm="121.90" Metro="4/4" Battito="1"/>
@@ -2392,6 +2404,8 @@ path, the music folder of the project (to relocate missing files), and the stand
 - A restore accepts only the entries `project.json`, `manifest.json` and files directly under `Audio/` and
   `Playlists/`. Any other name, a duplicate (case-insensitive), a directory entry, a link, a path with
   `..`, a Windows reserved name or a name ending with a space or a dot is refused.
+- An archive without `project.json` or without `manifest.json` is refused with a `ValueError` before
+  anything is written. So is a ZIP whose "version needed to extract" is above what Python reads.
 - On Windows, the legacy `ctime` can differ after an atomic tag-file replacement. The change check is
   stricter there (section 9, Backup).
 - The sidecar line uses two characters between hash and name: a space and `*`.
@@ -2613,7 +2627,7 @@ in the temp folder.
 `Build.bat` creates a clean venv and runs `build.py`. `python build.py` uses the current Python.
 
 The result is `dist/TraktorBridge/` (windowed exe, `runtime/` folder) and
-`dist/Portable_TraktorBridge-3.5-win64.zip`.
+`dist/Portable_TraktorBridge-3.5.1-win64.zip`.
 
 - No `.py` file ships. The modules are compiled into the PYZ.
 - Unused Qt parts are removed and librosa is left out.
@@ -2787,7 +2801,7 @@ measured their reliability against other DJ applications.
 
 #### Local processing and privacy
 
-The 3.5 application has no telemetry, usage analytics, library uploads or automatic log
+The 3.5.1 application has no telemetry, usage analytics, library uploads or automatic log
 submission. Audio decoding, BPM and waveform analysis, cue editing, backup and export all run
 locally. No developer account or cloud service is required.
 

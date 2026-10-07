@@ -196,10 +196,11 @@ def export(nodes: list[Node], root: str, verify: bool = False, processes: int = 
     cb(96, "Writing export.pdb...")
     dbdir = os.path.join(root, "PIONEER", "rekordbox")
     os.makedirs(dbdir, exist_ok=True)
-    pdbwrite.write(items, nodes, os.path.join(dbdir, "export.pdb"))
+    db = os.path.join(dbdir, "export.pdb")
+    data = pdbwrite.write(items, nodes, db)
     reference.copy_settings(os.path.join(root, "PIONEER"))
     if man:
-        man.add(os.path.join(dbdir, "export.pdb"))
+        man.add(db, sha256_bytes(data))
         for n in reference.SETTINGS:
             man.add(os.path.join(root, "PIONEER", n))
     cb(100, f"{len(items)} tracks exported")

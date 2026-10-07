@@ -14,7 +14,17 @@ import defusedxml.ElementTree as ET
 
 from .. import keys
 from ..model import CUE, LOOP, Cue, Node, Track
-from . import Progress, check_size, num, relocate, relocator, unix_date
+from . import (
+    Progress,
+    check_size,
+    num,
+    parse_xml,
+    position,
+    relocate,
+    relocator,
+    sane,
+    unix_date,
+)
 from .m3u import read_text
 
 
@@ -58,15 +68,21 @@ def read_song(el: ET.Element) -> Track:
     if sc is not None:
         spb = num(sc.get("Bpm"))
         t.bpm = 60 / spb if spb > 0 else 0.0
+        if not sane(t.bpm):                 # a tiny seconds-per-beat divides into infinity
+            t.bpm = 0.0
         if sc.get("Key"):
             t.key = keys.parse(sc.get("Key"))
         # fluid beatgrid (VirtualDJ 2026): the anchor moved from a Poi to Scan Phase
-        if sc.get("Phase") is not None:
-            t.grid = num(sc.get("Phase")) * 1000
+        phase = position(sc.get("Phase"))
+        if sc.get("Phase") is not None and phase is not None:
+            t.grid = phase * 1000
 
     for p in el.findall("Poi"):
         kind = p.get("Type", "cue")
-        pos = num(p.get("Pos")) * 1000
+        pos = position(p.get("Pos"))
+        if pos is None:
+            continue
+        pos *= 1000
         if kind == "beatgrid":
             if t.grid is None:
                 t.grid = pos
@@ -79,7 +95,7 @@ def read_song(el: ET.Element) -> Track:
         if kind == "loop":
             # Size is a length in beats, a saved loop without bpm has no usable length
             beats = num(p.get("Size"))
-            if beats > 0 and t.bpm > 0:
+            if beats > 0 and t.bpm > 0 and sane(beats * 60000 / t.bpm):
                 c.kind, c.length = LOOP, beats * 60000 / t.bpm
         t.cues.append(c)
     return t
@@ -89,7 +105,7 @@ def read_vdjfolder(path: str, by_path: dict[str, Track], found) -> list[Track]:
     try:
         check_size(path)
         root = ET.parse(path).getroot()
-    except ET.ParseError:
+    except (ET.ParseError, LookupError):
         return []
     out = []
     for s in root.iter("song"):
@@ -165,7 +181,7 @@ def load(path: str, music_root: str = "", progress: Progress | None = None) -> l
     if os.path.isfile(db):
         cb(10, "Reading database.xml...")
         check_size(db)
-        for el in ET.parse(db).getroot().iter("Song"):
+        for el in parse_xml(db).iter("Song"):
             t = read_song(el)
             key = os.path.normcase(t.path)
             t.path = found(t.path)

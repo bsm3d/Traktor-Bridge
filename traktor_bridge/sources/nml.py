@@ -11,7 +11,7 @@ import defusedxml.ElementTree as ET
 
 from .. import keys
 from ..model import CUE, GRID, LOOP, Cue, Node, Track
-from . import Progress, check_size, index_folder, num, relocate
+from . import Progress, check_size, index_folder, num, position, relocate
 
 log = logging.getLogger(__name__)
 
@@ -25,8 +25,9 @@ def read_tree(path: str) -> ET.Element:
         raw = f.read()
     try:
         return ET.fromstring(raw)
-    except ET.ParseError:
-        # old collections sometimes carry control chars in tags, Traktor itself doesn't care
+    except (ET.ParseError, LookupError):
+        # old collections sometimes carry control chars in tags, Traktor itself doesn't care.
+        # An encoding label that is not one makes the parser fail too, the text is read as UTF-8
         txt = raw.decode("utf-8", errors="replace")
         txt = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", txt)
         return ET.fromstring(txt)
@@ -110,8 +111,11 @@ def read_entry(e: ET.Element) -> Track:
         t.gain = num(loud.get("ANALYZED_DB"))
 
     for c in e.findall("CUE_V2"):
+        start = position(c.get("START"))
+        if start is None:
+            continue
         cue = Cue(name=c.get("NAME", ""), kind=int(num(c.get("TYPE"))),
-                  start=num(c.get("START")), length=num(c.get("LEN")),
+                  start=start, length=num(c.get("LEN")),
                   hotcue=int(num(c.get("HOTCUE"), -1)), color=c.get("COLOR", ""))
         if cue.kind == GRID:
             if t.grid is None:

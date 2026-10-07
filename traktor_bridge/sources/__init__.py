@@ -22,16 +22,42 @@ def check_size(path: str, limit: int = 0):
     if size > (limit or MAX_FILE):
         raise ValueError(f"{os.path.basename(path)} is too large to be a collection ({size / 1e9:.1f} GB)")
 
+
+def parse_xml(path: str):
+    """The root element of an XML file. An encoding declaration Python does not know is a bad file."""
+    import defusedxml.ElementTree as ET
+    try:
+        return ET.parse(path).getroot()
+    except LookupError as e:
+        raise ValueError(f"{os.path.basename(path)} declares an encoding that is not supported: {e}") from e
+
+
 AUDIO_EXT = {".mp3", ".wav", ".flac", ".aiff", ".aif", ".m4a", ".mp4", ".aac", ".ogg", ".alac"}
 
 KINDS = ("traktor", "rekordbox", "mixxx", "m3u", "virtualdj", "serato", "folder", "project")
 
 
+# "inf", "nan" and "1e999" parse as floats and break int() and every sum after them
+LIMIT = 1e15
+
+
+def sane(x: float) -> bool:
+    """False for NaN, infinity and anything no collection really holds."""
+    return abs(x) <= LIMIT
+
+
 def num(s, default: float = 0.0) -> float:
     try:
-        return float(s)
-    except (TypeError, ValueError):
+        v = float(s)
+    except (TypeError, ValueError, OverflowError):
         return default
+    return v if sane(v) else default
+
+
+def position(s) -> float | None:
+    """A cue or grid position as written in a file. 0 when the attribute is missing, None when
+    it is there but is not a usable number."""
+    return 0.0 if s is None else num(s, None)
 
 
 def unix_date(s) -> str:

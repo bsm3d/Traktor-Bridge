@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 
 
 def natural(name: str):
-    return [int(p) if p.isdigit() else p.lower() for p in re.split(r"(\d+)", name)]
+    # isdigit() is also true for a superscript two, which int() refuses
+    return [int(p) if p.isdecimal() else p.lower() for p in re.split(r"(\d+)", name)]
 
 
 def make_track(path: str) -> Track:

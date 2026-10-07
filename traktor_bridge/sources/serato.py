@@ -18,7 +18,7 @@ import struct
 
 from .. import keys, tags
 from ..model import CUE, LOOP, Cue, Node, Track
-from . import Progress, check_size, index_folder, num, relocate, unix_date
+from . import Progress, check_size, index_folder, num, relocate, sane, unix_date
 
 # ============================================================
 # Records
@@ -154,7 +154,8 @@ def beatgrid(data: bytes) -> tuple[float | None, float]:
         return None, 0.0
     first = struct.unpack_from(">f", data, 6)[0]
     bpm = struct.unpack_from(">f", data, 6 + 8 * (count - 1) + 4)[0]
-    return first * 1000, bpm
+    # a float32 field can hold NaN and infinity, which must not reach the track
+    return first * 1000 if sane(first * 1000) else None, bpm if sane(bpm) else 0.0
 
 
 def read_tags(t: Track):

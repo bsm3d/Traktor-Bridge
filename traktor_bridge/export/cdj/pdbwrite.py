@@ -158,8 +158,9 @@ def flat_inputs(items: list[Item], nodes: list[Node]):
 
 
 def write(items: list[Item], nodes: list[Node], path: str | os.PathLike, today: str = "",
-          static: dict[int, bytes] | None = None):
-    """export.pdb. The native core builds it when it is there, build_py_file is the reference."""
+          static: dict[int, bytes] | None = None) -> bytes:
+    """export.pdb, and the bytes written for the manifest. The native core builds it when it
+    is there, build_py_file is the reference."""
     today = today or datetime.now().astimezone().date().isoformat()
     # player menus and an empty history, the same in every rekordbox export
     if static is None:
@@ -173,6 +174,7 @@ def write(items: list[Item], nodes: list[Node], path: str | os.PathLike, today: 
         data = build_py_file(items, nodes, today, static)
     from .validate import pdb, write_verified
     write_verified(str(path), data, pdb)
+    return data
 
 
 def build_py_file(items: list[Item], nodes: list[Node], today: str, static: dict[int, bytes]) -> bytes:

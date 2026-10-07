@@ -12,7 +12,7 @@ import time
 from dataclasses import fields
 
 from ..model import Cue, Node, Track
-from . import Progress, check_size, index_folder, relocate
+from . import Progress, check_size, index_folder, relocate, sane
 
 FORMAT = "traktor-bridge-project"
 VERSION = 1
@@ -21,6 +21,7 @@ MAX_DEPTH = 32
 # the settings a project carries: where things are and how to export them
 SETTING_KEYS = ("source_path", "music_root", "output_path", "export_format", "copy_music", "verify_copy",
                 "key_format", "waveform_color", "crossfade")
+PATH_KEYS = ("source_path", "music_root", "output_path")
 
 TRACK_FIELDS = [f.name for f in fields(Track) if f.name != "cues"]
 CUE_FIELDS = [f.name for f in fields(Cue)]
@@ -81,12 +82,22 @@ def _coerce(value, default):
     if isinstance(default, bool):
         return value if isinstance(value, bool) else default
     if isinstance(default, (int, float)):
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
+        # JSON accepts NaN, Infinity and 1e999, and an integer of any length
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not sane(value):
             return default
         return type(default)(value)
     if isinstance(default, str):
         return value if isinstance(value, str) else default
     return default
+
+
+def _list(value, what: str) -> list:
+    """A list from the file, empty when missing. Anything else is a damaged project."""
+    if isinstance(value, list):
+        return value
+    if value is not None:
+        raise ValueError(f"{what} must be a list")
+    return []
 
 
 def _track(d: dict) -> Track:
@@ -96,11 +107,11 @@ def _track(d: dict) -> Track:
             continue
         v = d[n]
         if n in OPTIONAL:
-            ok = isinstance(v, (int, float)) and not isinstance(v, bool)
+            ok = isinstance(v, (int, float)) and not isinstance(v, bool) and sane(v)
             setattr(t, n, OPTIONAL[n](v) if ok else None)
         else:
             setattr(t, n, _coerce(v, getattr(t, n)))
-    for c in d.get("cues") or []:
+    for c in _list(d.get("cues"), "the cues of a track"):
         if not isinstance(c, dict):
             continue
         cue = Cue()
@@ -126,14 +137,22 @@ def read(path: str, music_root: str = "", progress: Progress | None = None) -> t
         raise ValueError("this project was saved by a newer Traktor Bridge")
 
     raw = doc.get("settings") if isinstance(doc.get("settings"), dict) else {}
-    cfg = {k: raw[k] for k in SETTING_KEYS if k in raw and isinstance(raw[k], (str, int, float, bool))}
-    tracks = [_track(d) for d in doc.get("tracks") or [] if isinstance(d, dict)]
+    cfg = {k: raw[k] for k in SETTING_KEYS if k in raw and isinstance(raw[k], (str, int, float, bool))
+           and (isinstance(raw[k], (str, bool)) or sane(raw[k]))}
+    for name in PATH_KEYS:
+        if not isinstance(cfg.get(name, ""), str):
+            del cfg[name]
+    bad = f"{os.path.basename(path)} is not a valid project"
+    try:
+        tracks = [_track(d) for d in _list(doc.get("tracks"), "tracks") if isinstance(d, dict)]
+    except ValueError as e:
+        raise ValueError(f"{bad}: {e}") from e
 
     base = os.path.dirname(os.path.abspath(path))
     for t in tracks:
         if t.path and not os.path.isabs(t.path):
             t.path = os.path.normpath(os.path.join(base, t.path))
-    for name in ("music_root", "source_path", "output_path"):
+    for name in PATH_KEYS:
         if cfg.get(name) and not os.path.isabs(cfg[name]):
             cfg[name] = os.path.normpath(os.path.join(base, cfg[name]))
     root = music_root or str(cfg.get("music_root") or "")
@@ -148,13 +167,17 @@ def read(path: str, music_root: str = "", progress: Progress | None = None) -> t
         kind = d.get("kind") if d.get("kind") in ("folder", "playlist", "smartlist") else "playlist"
         n = Node(kind, str(d.get("name") or "Untitled"), uuid=str(d.get("uuid") or ""), query=str(d.get("query") or ""))
         if kind == "folder":
-            n.children = [c for c in (node(x, depth + 1) for x in d.get("children") or []) if c]
+            kids = _list(d.get("children"), "the children of a folder")
+            n.children = [c for c in (node(x, depth + 1) for x in kids) if c]
         else:
-            n.tracks = [tracks[i] for i in d.get("tracks") or []
+            n.tracks = [tracks[i] for i in _list(d.get("tracks"), "the tracks of a playlist")
                         if isinstance(i, int) and not isinstance(i, bool) and 0 <= i < len(tracks)]
         return n
 
-    nodes = [n for n in (node(x, 0) for x in doc.get("tree") or []) if n]
+    try:
+        nodes = [n for n in (node(x, 0) for x in _list(doc.get("tree"), "tree")) if n]
+    except ValueError as e:
+        raise ValueError(f"{bad}: {e}") from e
     if progress:
         progress(100, "Project read")
     return nodes, cfg
