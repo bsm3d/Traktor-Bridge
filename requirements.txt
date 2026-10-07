@@ -1,0 +1,17 @@
+# Traktor Bridge 3.5
+
+# GUI and preview player
+PySide6>=6.6
+
+# Explicit, lossless metadata writes from the ID Tag editor
+mutagen>=1.47,<2
+defusedxml>=0.7.1,<1
+
+# Waveforms (CDJ export and player), without them the export still works, flat waveforms
+numpy>=1.26
+scipy>=1.11
+librosa>=0.10
+soundfile>=0.12
+
+# Artwork resizing for the CDJ export
+Pillow>=10.0

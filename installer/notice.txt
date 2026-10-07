@@ -1,0 +1,18 @@
+Traktor Bridge
+
+Traktor Bridge was designed for users of Traktor, the DJ software from Native Instruments. It is a central hub that
+lets the leading DJ programs exchange playlists. It works alongside Traktor and does not replace it.
+
+Traktor Bridge is a non-commercial project, made by one person in his free time. It is free for
+any noncommercial use (PolyForm Noncommercial License 1.0.0, see LICENSE.txt in the install
+folder). The source code is public: everyone is free to read it.
+
+It is provided as is, without warranty of any kind. The author is not responsible for any loss
+of data (a collection, a USB key or its content, music files, cues, playlists), for a key a
+player refuses to read, or for any other damage resulting from its use. Formatting a key erases
+it. Back up your collection and test a key on your player before playing out with it.
+
+Not affiliated with AlphaTheta / Pioneer DJ, Native Instruments, VirtualDJ, Serato or Mixxx.
+All trademarks belong to their owners.
+
+www.traktorbridge.com
