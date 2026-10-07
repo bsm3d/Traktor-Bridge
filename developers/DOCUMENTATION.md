@@ -2174,7 +2174,7 @@ unsigned 16-bit limit (655.35 BPM) is reported as an error.
 ### Decoding and waveform bands
 
 `analysis.Audio` decodes each track once with soundfile, block by block into one reused buffer.
-Loading a whole track at once allocates about 150 MB of fresh memory per file, and on Windows
+Loading a whole track at once allocates a large block of fresh memory per file, and on Windows
 those page faults serialise between processes.
 
 Mono and a quarter of the sample rate are computed in the same pass (11 kHz for a CD rip, plenty
@@ -2192,8 +2192,7 @@ file (size, date), its path on the key, bpm, grid, duration, cues and `ANLZ_VERS
 `ANLZ_VERSION` must be raised whenever the generator changes, and it is also bumped when the
 missing-grid behaviour above changes.
 
-On a recent desktop, 121 AIFF tracks (8 GB) are exported in under 5 seconds, audio copy
-included. On a USB key the write speed of the key is the limit.
+On a USB key the write speed of the key is the limit.
 
 ---
 
@@ -2897,8 +2896,7 @@ These changes made loading and analysis faster without changing results.
 These are optimizations of the same code, not a changed musical model. The waveform arrays and
 the tempo, first-beat and confidence output are meant to stay the same.
 
-The numbers come from local CPU benchmarks and synthetic audio. They say nothing about hardware
-latency or accuracy on representative real music.
+None of this says anything about hardware latency, or about accuracy on representative real music.
 
 ### Release checks and remaining evidence
 
